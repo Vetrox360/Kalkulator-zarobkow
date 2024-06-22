@@ -114,3 +114,5 @@ document.getElementById("resetButton").addEventListener("click", () => {
     startHourGlobal = null;
     endHourGlobal = null;
 });
+
+loadFromLocalStorage();
