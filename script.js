@@ -1,4 +1,3 @@
-// script.js
 const HOURLY_RATE_EUR = 12.41;
 const EXCHANGE_RATE_PLN = 4.33;
 const SECONDS_IN_HOUR = 3600;
@@ -13,6 +12,11 @@ function loadFromLocalStorage() {
     const earningsEUR = parseFloat(localStorage.getItem("earningsEUR")) || 0;
     const totalHours = parseFloat(localStorage.getItem("totalHours")) || 0;
     updateDisplay(earningsEUR, totalHours);
+
+    if (startHourGlobal && endHourGlobal) {
+        clearInterval(intervalID);
+        intervalID = setInterval(incrementEarnings, 1000);
+    }
 }
 
 function saveToLocalStorage(earningsEUR, totalHours) {
@@ -107,7 +111,6 @@ document.getElementById("resetButton").addEventListener("click", () => {
     clearInterval(intervalID);
     saveToLocalStorage(0, 0);
     updateDisplay(0, 0);
+    startHourGlobal = null;
+    endHourGlobal = null;
 });
-
-loadFromLocalStorage();
-setInterval(incrementEarnings, 1000);
