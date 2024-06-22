@@ -1,9 +1,14 @@
+// script.js
 const HOURLY_RATE_EUR = 12.41;
 const EXCHANGE_RATE_PLN = 4.33;
 const SECONDS_IN_HOUR = 3600;
 const earningsElementEUR = document.getElementById("earningsEUR");
 const earningsElementPLN = document.getElementById("earningsPLN");
 const totalHoursElement = document.getElementById("totalHours");
+const startHourInput = document.getElementById("startHour");
+const endHourInput = document.getElementById("endHour");
+const manualHoursInput = document.getElementById("manualHours");
+const resetButton = document.getElementById("resetButton");
 let startHourGlobal;
 let endHourGlobal;
 let intervalID;
@@ -11,17 +16,28 @@ let intervalID;
 function loadFromLocalStorage() {
     const earningsEUR = parseFloat(localStorage.getItem("earningsEUR")) || 0;
     const totalHours = parseFloat(localStorage.getItem("totalHours")) || 0;
-    updateDisplay(earningsEUR, totalHours);
+    const savedStartHour = localStorage.getItem("startHour");
+    const savedEndHour = localStorage.getItem("endHour");
 
-    if (startHourGlobal && endHourGlobal) {
+    if (savedStartHour && savedEndHour) {
+        startHourGlobal = savedStartHour;
+        endHourGlobal = savedEndHour;
+        startHourInput.value = startHourGlobal;
+        endHourInput.value = endHourGlobal;
         clearInterval(intervalID);
         intervalID = setInterval(incrementEarnings, 1000);
     }
+
+    updateDisplay(earningsEUR, totalHours);
 }
 
 function saveToLocalStorage(earningsEUR, totalHours) {
     localStorage.setItem("earningsEUR", earningsEUR);
     localStorage.setItem("totalHours", totalHours);
+    if (startHourGlobal && endHourGlobal) {
+        localStorage.setItem("startHour", startHourGlobal);
+        localStorage.setItem("endHour", endHourGlobal);
+    }
 }
 
 function updateDisplay(earningsEUR, totalHours) {
@@ -50,8 +66,8 @@ function calculateEarnings(currentTime, startHour, endHour) {
 
 document.getElementById("workForm").addEventListener("submit", (e) => {
     e.preventDefault();
-    const startHour = document.getElementById("startHour").value;
-    const endHour = document.getElementById("endHour").value;
+    const startHour = startHourInput.value;
+    const endHour = endHourInput.value;
 
     startHourGlobal = startHour;
     endHourGlobal = endHour;
@@ -73,7 +89,7 @@ document.getElementById("workForm").addEventListener("submit", (e) => {
 });
 
 document.getElementById("addManualHours").addEventListener("click", () => {
-    const manualHours = parseFloat(document.getElementById("manualHours").value);
+    const manualHours = parseFloat(manualHoursInput.value);
     if (!isNaN(manualHours) && manualHours > 0) {
         let earningsEUR = parseFloat(localStorage.getItem("earningsEUR")) || 0;
         let totalHours = parseFloat(localStorage.getItem("totalHours")) || 0;
@@ -107,12 +123,14 @@ function incrementEarnings() {
     updateDisplay(earningsEUR, totalHours);
 }
 
-document.getElementById("resetButton").addEventListener("click", () => {
+resetButton.addEventListener("click", () => {
     clearInterval(intervalID);
     saveToLocalStorage(0, 0);
     updateDisplay(0, 0);
     startHourGlobal = null;
     endHourGlobal = null;
+    localStorage.removeItem("startHour");
+    localStorage.removeItem("endHour");
 });
 
 loadFromLocalStorage();
