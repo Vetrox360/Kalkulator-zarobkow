@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Zarobków</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Kalkulator Zarobków</h1>
+        <form id="workForm">
+            <label for="startHour">Godzina rozpoczęcia pracy:</label>
+            <input type="time" id="startHour" required>
+            <label for="endHour">Godzina zakończenia pracy:</label>
+            <input type="time" id="endHour" required>
+            <button type="submit">Dodaj godziny</button>
+        </form>
+        <div class="results">
+            <p>Zarobki (EUR): <span id="earningsEUR">0.00</span></p>
+            <p>Zarobki (PLN): <span id="earningsPLN">0.00</span></p>
+            <p>Łącznie godzin: <span id="totalHours">0</span></p>
+        </div>
+        <button id="resetButton">Resetuj godziny</button>
+        <div class="manual-entry">
+            <h2>Manualne dodanie godzin</h2>
+            <label for="manualHours">Liczba godzin:</label>
+            <input type="number" id="manualHours" step="0.1">
+            <button id="addManualHours">Dodaj godziny</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
