@@ -3,32 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Zarobków</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Kalkulator zarobków</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --accent-color: #fc4503;
+            --input-bg: #1e1e1e;
+            --card-bg: #1c1c1c;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+        input:focus, button:focus {
+            outline: 2px solid var(--accent-color);
+        }
+        button {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #e63e00;
+        }
+        .result {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .result span {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Kalkulator Zarobków</h1>
-        <form id="workForm">
-            <label for="startHour">Godzina rozpoczęcia pracy:</label>
-            <input type="time" id="startHour" required>
-            <label for="endHour">Godzina zakończenia pracy:</label>
-            <input type="time" id="endHour" required>
-            <button type="submit">Dodaj godziny</button>
-        </form>
-        <div class="results">
-            <p>Zarobki (EUR): <span id="earningsEUR">0.00</span></p>
-            <p>Zarobki (PLN): <span id="earningsPLN">0.00</span></p>
-            <p>Łącznie godzin: <span id="totalHours">0</span></p>
+    <h1>Kalkulator zarobków</h1>
+    <div class="card">
+        <div class="input-group">
+            <label for="startTime">Godzina rozpoczęcia pracy:</label>
+            <input type="time" id="startTime">
         </div>
-        <button id="resetButton">Resetuj godziny</button>
-        <div class="manual-entry">
-            <h2>Manualne dodanie godzin</h2>
-            <label for="manualHours">Liczba godzin:</label>
-            <input type="number" id="manualHours" step="0.1">
-            <button id="addManualHours">Dodaj godziny</button>
+        <div class="input-group">
+            <label for="endTime">Godzina zakończenia pracy:</label>
+            <input type="time" id="endTime">
         </div>
+        <div class="input-group">
+            <label for="additionalHours">Dodatkowe godziny:</label>
+            <input type="number" id="additionalHours" min="0" step="0.5">
+        </div>
+        <button onclick="addAdditionalHours()">Dodaj godziny</button>
+        <button onclick="updateWorkTime()">Aktualizuj czas pracy</button>
+        <button onclick="resetHours()">Resetuj godziny</button>
     </div>
-    <script src="script.js"></script>
+    <div class="card">
+        <div class="result">Zarobki: <span id="earnings">0.00</span> EUR</div>
+        <div class="result">Zarobki w PLN: <span id="earningsPLN">0.00</span> PLN</div>
+        <div class="result">Przepracowane godziny: <span id="hoursWorked">0.00</span></div>
+    </div>
+
+    <script>
+        // JavaScript pozostaje bez zmian
+        const HOURLY_RATE = 12.41;
+        const PLN_RATE = 4.33;
+        let startTime, endTime, additionalHours, earnings, intervalId;
+
+        function loadData() {
+            startTime = localStorage.getItem('startTime') || '';
+            endTime = localStorage.getItem('endTime') || '';
+            additionalHours = parseFloat(localStorage.getItem('additionalHours') || '0');
+            document.getElementById('startTime').value = startTime;
+            document.getElementById('endTime').value = endTime;
+            document.getElementById('additionalHours').value = additionalHours;
+            updateEarnings();
+        }
+
+        function saveData() {
+            localStorage.setItem('startTime', startTime);
+            localStorage.setItem('endTime', endTime);
+            localStorage.setItem('additionalHours', additionalHours.toString());
+        }
+
+        function updateWorkTime() {
+            startTime = document.getElementById('startTime').value;
+            endTime = document.getElementById('endTime').value;
+            saveData();
+            updateEarnings();
+        }
+
+        function addAdditionalHours() {
+            const hours = parseFloat(document.getElementById('additionalHours').value) || 0;
+            additionalHours += hours;
+            document.getElementById('additionalHours').value = '';
+            saveData();
+            updateEarnings();
+        }
+
+        function resetHours() {
+            startTime = '';
+            endTime = '';
+            additionalHours = 0;
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+            document.getElementById('additionalHours').value = '';
+            saveData();
+            updateEarnings();
+        }
+
+        function updateEarnings() {
+            clearInterval(intervalId);
+            intervalId = setInterval(() => {
+                const now = new Date();
+                const start = startTime ? new Date(now.toDateString() + ' ' + startTime) : now;
+                const end = endTime ? new Date(now.toDateString() + ' ' + endTime) : now;
+                
+                if (end < start) {
+                    end.setDate(end.getDate() + 1);
+                }
+
+                let hoursWorked = (Math.min(now, end) - start) / 3600000 + additionalHours;
+                if (hoursWorked < 0) hoursWorked = 0;
+
+                earnings = hoursWorked * HOURLY_RATE;
+                const earningsPLN = earnings * PLN_RATE;
+
+                document.getElementById('earnings').textContent = earnings.toFixed(2);
+                document.getElementById('earningsPLN').textContent = earningsPLN.toFixed(2);
+                document.getElementById('hoursWorked').textContent = hoursWorked.toFixed(2);
+            }, 1000);
+        }
+
+        window.onload = loadData;
+    </script>
 </body>
 </html>
