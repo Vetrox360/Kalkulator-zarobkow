@@ -75,6 +75,12 @@
 </head>
 <body>
     <h1>Kalkulator zarobków</h1>
+  <div class="card">
+        <div class="result">Zarobki: <span id="earnings">0.00</span> EUR</div>
+        <div class="result">Zarobki w PLN: <span id="earningsPLN">0.00</span> PLN</div>
+        <div class="result">Przepracowane godziny: <span id="hoursWorked">0.00</span></div>
+    </div>
+  
     <div class="card">
         <div class="input-group">
             <label for="startTime">Godzina rozpoczęcia pracy:</label>
@@ -91,11 +97,6 @@
         <button onclick="addAdditionalHours()">Dodaj godziny</button>
         <button onclick="updateWorkTime()">Aktualizuj czas pracy</button>
         <button onclick="resetHours()">Resetuj godziny</button>
-    </div>
-    <div class="card">
-        <div class="result">Zarobki: <span id="earnings">0.00</span> EUR</div>
-        <div class="result">Zarobki w PLN: <span id="earningsPLN">0.00</span> PLN</div>
-        <div class="result">Przepracowane godziny: <span id="hoursWorked">0.00</span></div>
     </div>
 
     <script>
