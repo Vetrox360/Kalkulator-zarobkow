@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator zarobków</title>
     <style>
+  .calendar-day.selected {
+    border: 2px solid var(--accent-color);
+}
+ .calendar-day-label {
+    font-weight: bold;
+    text-align: center;
+    padding: 5px;
+    background-color: transparent;
+    color: var(--text-color);
+    border-radius: 4px;
+}
+
+.calendar-day-label.sunday {
+    color: var(--accent-color);
+}
+
+.calendar-day.sunday {
+    color: var(--accent-color);
+}
         :root {
             --bg-color: #121212;
             --text-color: #e0e0e0;
@@ -18,7 +37,7 @@
             color: var(--text-color);
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 20px 20px 70px;
             line-height: 1.6;
         }
         h1 {
@@ -78,111 +97,403 @@
             font-size: 18px;
             vertical-align: super;
         }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+        }
+        .bottom-nav button {
+            background-color: transparent;
+            color: var(--text-color);
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .bottom-nav button.active {
+            color: var(--accent-color);
+        }
+        #calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .calendar-day {
+            background-color: var(--card-bg);
+            border-radius: 4px;
+            padding: 5px;
+            text-align: center;
+        }
+        .calendar-day .hours {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border-radius: 10px;
+            padding: 2px 5px;
+            font-size: 12px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        #dayDetails {
+            margin-top: 20px;
+        }
+   .month-picker {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .month-picker select, .month-picker input {
+            margin: 0 5px;
+            padding: 5px;
+            border: 1px solid var(--accent-color);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
     </style>
 </head>
 <body>
-    <h1>Kalkulator zarobków</h1>
-    <div class="card">
-      <div class="result">Zarobki:</div>
-        <div class="result"><span id="earnings"></span> EUR</div>
-        <div class="result"><span id="earningsPLN"></span> PLN</div>
-        <div class="result">Godziny: <span id="hoursWorked">0.00</span></div>
-    </div>
-  
-    <div class="card">
-        <div class="input-group">
-            <label for="startTime">Godzina rozpoczęcia pracy:</label>
-            <input type="time" id="startTime">
+    <div id="mainPage">
+        <h1>Kalkulator zarobków</h1>
+        <div class="card">
+          <div class="result">Zarobki:</div>
+            <div class="result"><span id="earnings"></span> EUR</div>
+            <div class="result"><span id="earningsPLN"></span> PLN</div>
+            <div class="result">Godziny: <span id="hoursWorked">0.00</span></div>
         </div>
-        <div class="input-group">
-            <label for="endTime">Godzina zakończenia pracy:</label>
-            <input type="time" id="endTime">
+      
+        <div class="card">
+            <div class="input-group">
+                <label for="startTime">Godzina rozpoczęcia pracy:</label>
+                <input type="time" id="startTime">
+            </div>
+            <div class="input-group">
+                <label for="endTime">Godzina zakończenia pracy:</label>
+                <input type="time" id="endTime">
+            </div>
+            <button onclick="updateWorkTime()">Aktualizuj czas pracy</button>
+            <button onclick="resetHours()">Resetuj godziny</button>
         </div>
-        <div class="input-group">
-            <label for="additionalHours">Dodatkowe godziny:</label>
-            <input type="number" id="additionalHours" min="0" step="0.5">
-        </div>
-        <button onclick="addAdditionalHours()">Dodaj godziny</button>
-        <button onclick="updateWorkTime()">Aktualizuj czas pracy</button>
-        <button onclick="resetHours()">Resetuj godziny</button>
     </div>
 
-    <script>
-        const HOURLY_RATE = 12.41;
-        const PLN_RATE = 4.33;
-        let startTime, endTime, additionalHours, earnings, intervalId;
+    <div id="calendarPage" style="display: none;">
+        <h1>Kalendarz pracy</h1>
+        
+        <!-- Month picker elements -->
+        <div class="month-picker">
+            <select id="monthSelect" onchange="updateCalendar()">
+                <option value="0">Styczeń</option>
+                <option value="1">Luty</option>
+                <option value="2">Marzec</option>
+                <option value="3">Kwiecień</option>
+                <option value="4">Maj</option>
+                <option value="5">Czerwiec</option>
+                <option value="6">Lipiec</option>
+                <option value="7">Sierpień</option>
+                <option value="8">Wrzesień</option>
+                <option value="9">Październik</option>
+                <option value="10">Listopad</option>
+                <option value="11">Grudzień</option>
+            </select>
+            <input type="number" id="yearInput" value="2024" min="2000" max="2100" onchange="updateCalendar()">
+        </div>
+      
+<div id="calendar">
+  </div>
 
-        function loadData() {
-            startTime = localStorage.getItem('startTime') || '';
-            endTime = localStorage.getItem('endTime') || '';
-            additionalHours = parseFloat(localStorage.getItem('additionalHours') || '0');
-            document.getElementById('startTime').value = startTime;
-            document.getElementById('endTime').value = endTime;
-            document.getElementById('additionalHours').value = additionalHours;
-            updateEarnings();
-        }
+<div id="totalHours">
+  <h2>Wszystkie godziny: <span id="allHours">0.00</span></h2>
+</div>
 
-        function saveData() {
-            localStorage.setItem('startTime', startTime);
-            localStorage.setItem('endTime', endTime);
-            localStorage.setItem('additionalHours', additionalHours.toString());
-        }
+        <div id="dayDetails" class="card"></div>
+    </div>
 
-        function updateWorkTime() {
-            startTime = document.getElementById('startTime').value;
-            endTime = document.getElementById('endTime').value;
+    <div class="bottom-nav">
+        <button onclick="showPage('mainPage')" id="mainPageBtn">Główna</button>
+        <button onclick="showPage('calendarPage')" id="calendarPageBtn">Kalendarz</button>
+    </div>
+
+  <script>
+    const HOURLY_RATE = 12.41;
+    const PLN_RATE = 4.33;
+    let workData = {};
+    let intervalId;
+
+    function loadData() {
+        workData = JSON.parse(localStorage.getItem('workData') || '{}');
+        updateEarnings();
+        renderCalendar();
+    }
+
+    function saveData() {
+        localStorage.setItem('workData', JSON.stringify(workData));
+    }
+
+    function updateWorkTime() {
+        const date = new Date().toISOString().split('T')[0];
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+        
+        if (startTime && endTime) {
+            workData[date] = { startTime, endTime };
             saveData();
             updateEarnings();
+            renderCalendar();
         }
+    }
 
-        function addAdditionalHours() {
-            const hours = parseFloat(document.getElementById('additionalHours').value) || 0;
-            additionalHours += hours;
-            document.getElementById('additionalHours').value = '';
-            saveData();
-            updateEarnings();
-        }
-
-        function resetHours() {
-            startTime = '';
-            endTime = '';
-            additionalHours = 0;
+    function resetHours() {
+        if (confirm('Czy na pewno chcesz zresetować godziny?')) {
+            const date = new Date().toISOString().split('T')[0];
+            delete workData[date];
             document.getElementById('startTime').value = '';
             document.getElementById('endTime').value = '';
-            document.getElementById('additionalHours').value = '';
             saveData();
             updateEarnings();
+            renderCalendar();
+        }
+    }
+
+    function formatMoney(amount) {
+        const [wholePart, decimalPart] = amount.toFixed(5).split('.');
+        return `<span class="big-number">${wholePart}.${decimalPart.slice(0,2)}</span><span class="small-decimals">${decimalPart.slice(2)}</span>`;
+    }
+
+    function updateEarnings() {
+  clearInterval(intervalId);
+  intervalId = setInterval(() => {
+    let totalHours = 0;
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+
+    for (const [date, data] of Object.entries(workData)) {
+      if (date === today) {
+        const start = new Date(date + 'T' + data.startTime);
+        const end = new Date(date + 'T' + data.endTime);
+        if (end < start) end.setDate(end.getDate() + 1);
+        totalHours += (Math.min(now, end) - start) / 3600000;
+      } else {
+        const start = new Date(date + 'T' + data.startTime);
+        const end = new Date(date + 'T' + data.endTime);
+        if (end < start) end.setDate(end.getDate() + 1);
+        totalHours += (end - start) / 3600000;
+      }
+    }
+
+    const earnings = totalHours * HOURLY_RATE;
+    const earningsPLN = earnings * PLN_RATE;
+
+    document.getElementById('earnings').innerHTML = formatMoney(earnings);
+    document.getElementById('earningsPLN').innerHTML = formatMoney(earningsPLN);
+    document.getElementById('hoursWorked').textContent = totalHours.toFixed(2);
+
+    // Update allHours element
+    document.getElementById('allHours').textContent = totalHours.toFixed(2);
+
+  }, 50);
+}
+
+
+    function updateCalendar() {
+            renderCalendar();
         }
 
-        function formatMoney(amount) {
-            const [wholePart, decimalPart] = amount.toFixed(5).split('.');
-            return `<span class="big-number">${wholePart}.${decimalPart.slice(0,2)}</span><span class="small-decimals">${decimalPart.slice(2)}</span>`;
-        }
+        function renderCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            const monthSelect = document.getElementById('monthSelect');
+            const yearInput = document.getElementById('yearInput');
+            const selectedMonth = parseInt(monthSelect.value, 10);
+            const selectedYear = parseInt(yearInput.value, 10);
 
-        function updateEarnings() {
-            clearInterval(intervalId);
-            intervalId = setInterval(() => {
-                const now = new Date();
-                const start = startTime ? new Date(now.toDateString() + ' ' + startTime) : now;
-                const end = endTime ? new Date(now.toDateString() + ' ' + endTime) : now;
+            calendarEl.innerHTML = '';
+            const firstDay = new Date(selectedYear, selectedMonth, 1);
+            const lastDay = new Date(selectedYear, selectedMonth + 1, 0);
+
+            // Add day labels
+            const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            dayLabels.forEach((day, index) => {
+                const dayLabel = document.createElement('div');
+                dayLabel.className = 'calendar-day-label';
+                if (index === 6) {
+                    dayLabel.classList.add('sunday');
+                }
+                dayLabel.textContent = day;
+                calendarEl.appendChild(dayLabel);
+            });
+
+            // Calculate the number of empty cells before the first day of the month
+            let firstDayOfWeek = firstDay.getDay() - 1;
+            if (firstDayOfWeek === -1) firstDayOfWeek = 6; // Sunday should be 6 when starting from Monday
+
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                calendarEl.appendChild(document.createElement('div'));
+            }
+
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
                 
-                if (end < start) {
-                    end.setDate(end.getDate() + 1);
+                // Check if it is a Sunday
+                const currentDate = new Date(selectedYear, selectedMonth, d);
+                if (currentDate.getDay() === 0) {
+                    dayEl.classList.add('sunday');
+                }
+                
+                dayEl.textContent = d;
+
+                const date = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                if (workData[date]) {
+                    const start = new Date(`${date}T${workData[date].startTime}`);
+                    const end = new Date(`${date}T${workData[date].endTime}`);
+                    if (end < start) end.setDate(end.getDate() + 1);
+                    const hours = (end - start) / 3600000;
+                    const hoursDisplay = hours % 1 === 0 ? `${Math.floor(hours)}h` : `${hours.toFixed(1)}h`;
+                    const hoursEl = document.createElement('div');
+                    hoursEl.className = 'hours';
+                    hoursEl.textContent = hoursDisplay;
+                    dayEl.appendChild(hoursEl);
                 }
 
-                let hoursWorked = (Math.min(now, end) - start) / 3600000 + additionalHours;
-                if (hoursWorked < 0) hoursWorked = 0;
-
-                earnings = hoursWorked * HOURLY_RATE;
-                const earningsPLN = earnings * PLN_RATE;
-
-                document.getElementById('earnings').innerHTML = formatMoney(earnings);
-                document.getElementById('earningsPLN').innerHTML = formatMoney(earningsPLN);
-                document.getElementById('hoursWorked').textContent = hoursWorked.toFixed(5);
-            }, 50);  // Update more frequently for smoother animation
+                dayEl.onclick = () => showDayDetails(date);
+                calendarEl.appendChild(dayEl);
+            }
         }
 
-        window.onload = loadData;
-    </script>
+function showDayDetails(date) {
+    // Remove the selected class from any previously selected date
+    const previouslySelected = document.querySelector('.calendar-day.selected');
+    if (previouslySelected) {
+        previouslySelected.classList.remove('selected');
+    }
+
+    // Add the selected class to the clicked date
+    const dayElements = document.querySelectorAll('.calendar-day');
+    dayElements.forEach(dayEl => {
+        const dayText = dayEl.childNodes[0].nodeValue.trim();
+        const dayNumber = date.split('-')[2];
+        if (dayText === dayNumber) {
+            dayEl.classList.add('selected');
+        }
+    });
+
+    const detailsEl = document.getElementById('dayDetails');
+    if (workData[date]) {
+        const { startTime, endTime } = workData[date];
+        detailsEl.innerHTML = `
+            <h2>${date}</h2>
+            <p>Start: ${startTime}</p>
+            <p>Koniec: ${endTime}</p>
+            <button onclick="editWorkDay('${date}')">Edytuj</button>
+        `;
+    } else {
+        detailsEl.innerHTML = `
+            <h2>${date}</h2>
+            <p>Brak danych o pracy</p>
+            <button onclick="addWorkDay('${date}')">Dodaj godziny pracy</button>
+        `;
+    }
+}
+
+    function editWorkDay(date) {
+        const { startTime, endTime } = workData[date];
+        const detailsEl = document.getElementById('dayDetails');
+        detailsEl.innerHTML = `
+            <h2>${date}</h2>
+            <div class="input-group">
+                <label for="editStartTime">Start:</label>
+                <input type="time" id="editStartTime" value="${startTime}">
+            </div>
+            <div class="input-group">
+                <label for="editEndTime">Koniec:</label>
+                <input type="time" id="editEndTime" value="${endTime}">
+            </div>
+            <button onclick="saveWorkDay('${date}')">Zapisz</button>
+        `;
+    }
+
+    function addWorkDay(date) {
+        const detailsEl = document.getElementById('dayDetails');
+        detailsEl.innerHTML = `
+            <h2>${date}</h2>
+            <div class="input-group">
+                <label for="editStartTime">Start:</label>
+                <input type="time" id="editStartTime">
+            </div>
+            <div class="input-group">
+                <label for="editEndTime">Koniec:</label>
+                <input type="time" id="editEndTime">
+            </div>
+            <button onclick="saveWorkDay('${date}')">Zapisz</button>
+        `;
+    }
+
+    function saveWorkDay(date) {
+        const startTime = document.getElementById('editStartTime').value;
+        const endTime = document.getElementById('editEndTime').value;
+        if (startTime && endTime) {
+            workData[date] = { startTime, endTime };
+            saveData();
+            updateEarnings();
+            renderCalendar();
+            showDayDetails(date);
+        }
+    }
+
+    function showPage(pageId) {
+        document.getElementById('mainPage').style.display = pageId === 'mainPage' ? 'block' : 'none';
+        document.getElementById('calendarPage').style.display = pageId === 'calendarPage' ? 'block' : 'none';
+        document.getElementById('mainPageBtn').classList.toggle('active', pageId === 'mainPage');
+        document.getElementById('calendarPageBtn').classList.toggle('active', pageId === 'calendarPage');
+    }
+
+    window.onload = () => {
+        loadData();
+        showPage('mainPage');
+    };
+  function updateCalendar() {
+  const now = new Date();
+  const selectedMonth = now.getMonth();
+  const selectedYear = now.getFullYear();
+
+  // Update month select and year input values
+  document.getElementById('monthSelect').value = selectedMonth;
+  document.getElementById('yearInput').value = selectedYear;
+
+  renderCalendar();
+}
+
+window.onload = () => {
+  loadData();
+  updateCalendar(); // Call updateCalendar on page load
+  showPage('mainPage');
+};
+function updateCalendar() {
+  const now = new Date();
+  const selectedMonth = document.getElementById('monthSelect').value || now.getMonth(); // Use selected month from dropdown or default to current month
+  const selectedYear = document.getElementById('yearInput').value || now.getFullYear();
+
+  // Update month select and year input values (for consistency)
+  document.getElementById('monthSelect').value = selectedMonth;
+  document.getElementById('yearInput').value = selectedYear;
+
+  renderCalendar();
+}
+
+window.onload = () => {
+  loadData();
+  updateCalendar();
+  showPage('mainPage');
+};
+
+// Update calendar when month or year changes in the select/input
+document.getElementById('monthSelect').onchange = updateCalendar;
+document.getElementById('yearInput').onchange = updateCalendar;
+
+</script>
 </body>
 </html>
