@@ -5,9 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator zarobków</title>
     <style>
-  .calendar-day.selected {
-    border: 2px solid var(--accent-color);
+  .calendar-day {
+    background-color: var(--card-bg);
+    border-radius: 4px;
+    padding: 5px;
+    text-align: center;
+    position: relative; /* Add this */
+    box-sizing: border-box; /* Add this */
 }
+
+.calendar-day.current-day {
+    background-color: #2a2a2a; /* Slightly brighter gray */
+}
+
+.calendar-day.selected {
+    box-shadow: inset 0 0 0 2px var(--accent-color);
+}}}
  .calendar-day-label {
     font-weight: bold;
     text-align: center;
@@ -219,7 +232,7 @@
     </div>
 
   <script>
-    const HOURLY_RATE = 12.41;
+    const HOURLY_RATE = 11;
     const PLN_RATE = 4.33;
     let workData = {};
     let intervalId;
@@ -373,9 +386,9 @@ function showDayDetails(date) {
 
     // Add the selected class to the clicked date
     const dayElements = document.querySelectorAll('.calendar-day');
+    const dayNumber = parseInt(date.split('-')[2], 10); // Convert to number
     dayElements.forEach(dayEl => {
-        const dayText = dayEl.childNodes[0].nodeValue.trim();
-        const dayNumber = date.split('-')[2];
+        const dayText = parseInt(dayEl.childNodes[0].nodeValue.trim(), 10); // Convert to number
         if (dayText === dayNumber) {
             dayEl.classList.add('selected');
         }
@@ -455,17 +468,7 @@ function showDayDetails(date) {
         loadData();
         showPage('mainPage');
     };
-  function updateCalendar() {
-  const now = new Date();
-  const selectedMonth = now.getMonth();
-  const selectedYear = now.getFullYear();
-
-  // Update month select and year input values
-  document.getElementById('monthSelect').value = selectedMonth;
-  document.getElementById('yearInput').value = selectedYear;
-
-  renderCalendar();
-}
+  
 
 window.onload = () => {
   loadData();
@@ -473,27 +476,44 @@ window.onload = () => {
   showPage('mainPage');
 };
 function updateCalendar() {
-  const now = new Date();
-  const selectedMonth = document.getElementById('monthSelect').value || now.getMonth(); // Use selected month from dropdown or default to current month
-  const selectedYear = document.getElementById('yearInput').value || now.getFullYear();
+    const now = new Date();
+    const monthSelect = document.getElementById('monthSelect');
+    const yearInput = document.getElementById('yearInput');
+    
+    // Always use the current month and year when the function is called without user input
+    const selectedMonth = monthSelect.dataset.userSelected ? parseInt(monthSelect.value, 10) : now.getMonth();
+    const selectedYear = yearInput.dataset.userSelected ? parseInt(yearInput.value, 10) : now.getFullYear();
 
-  // Update month select and year input values (for consistency)
-  document.getElementById('monthSelect').value = selectedMonth;
-  document.getElementById('yearInput').value = selectedYear;
+    // Update month select and year input values
+    monthSelect.value = selectedMonth;
+    yearInput.value = selectedYear;
 
-  renderCalendar();
+    // Reset the userSelected flag
+    monthSelect.dataset.userSelected = 'false';
+    yearInput.dataset.userSelected = 'false';
+
+    renderCalendar();
+
+    // Select current day
+    const todayString = now.toISOString().split('T')[0];
+    showDayDetails(todayString);
 }
 
 window.onload = () => {
-  loadData();
-  updateCalendar();
-  showPage('mainPage');
+    loadData();
+    updateCalendar(); // This will now set to the current month on page load
+    showPage('mainPage');
 };
 
-// Update calendar when month or year changes in the select/input
-document.getElementById('monthSelect').onchange = updateCalendar;
-document.getElementById('yearInput').onchange = updateCalendar;
-
+// Modify these event listeners to set a flag when user changes the value
+document.getElementById('monthSelect').onchange = function() {
+    this.dataset.userSelected = 'true';
+    updateCalendar();
+};
+document.getElementById('yearInput').onchange = function() {
+    this.dataset.userSelected = 'true';
+    updateCalendar();
+};
 </script>
 </body>
 </html>
