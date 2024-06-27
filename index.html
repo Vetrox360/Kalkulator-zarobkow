@@ -226,6 +226,25 @@
             background-color: var(--input-bg);
             color: var(--text-color);
         }
+  .bottom-nav button {
+    background-color: transparent;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0) invert(1);
+}
+
+.bottom-nav button.active .nav-icon {
+    filter: brightness(0) invert(1) sepia(100%) saturate(10000%) hue-rotate(20deg);
+}
     </style>
 </head>
 <body>
@@ -322,9 +341,15 @@
 </div>
   
   <div class="bottom-nav">
-    <button onclick="showPage('mainPage')" id="mainPageBtn">Główna</button>
-    <button onclick="showPage('calendarPage')" id="calendarPageBtn">Kalendarz</button>
-    <button onclick="showPage('settingsPage')" id="settingsPageBtn">Ustawienia</button>
+    <button onclick="showPage('mainPage')" id="mainPageBtn">
+        <img src="Home.webp" alt="Home" class="nav-icon">
+    </button>
+    <button onclick="showPage('calendarPage')" id="calendarPageBtn">
+        <img src="Calendar.webp" alt="Calendar" class="nav-icon">
+    </button>
+    <button onclick="showPage('settingsPage')" id="settingsPageBtn">
+        <img src="Settings.webp" alt="Settings" class="nav-icon">
+    </button>
 </div>
   
   <script>
@@ -699,6 +724,7 @@ function showPage(pageId) {
     document.getElementById('mainPage').style.display = pageId === 'mainPage' ? 'block' : 'none';
     document.getElementById('calendarPage').style.display = pageId === 'calendarPage' ? 'block' : 'none';
     document.getElementById('settingsPage').style.display = pageId === 'settingsPage' ? 'block' : 'none';
+    
     document.getElementById('mainPageBtn').classList.toggle('active', pageId === 'mainPage');
     document.getElementById('calendarPageBtn').classList.toggle('active', pageId === 'calendarPage');
     document.getElementById('settingsPageBtn').classList.toggle('active', pageId === 'settingsPage');
