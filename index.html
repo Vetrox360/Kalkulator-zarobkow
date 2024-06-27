@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#fc4503">
-<link rel="apple-touch-icon" href="/icon-192x192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator zarobków</title>
@@ -287,7 +284,8 @@
         <div class="input-group">
             <label for="summaryPeriod">Okres:</label>
             <select id="summaryPeriod" onchange="updateSummary()">
-                <option value="year">Ten rok</option>
+                <option>Wybierz okres</option>
+              <option value="year">Ten rok</option>
                 <option value="month">Ten miesiąc</option>
                 <option value="week">Ten tydzień</option>
                 <option value="custom">Niestandardowy</option>
@@ -604,17 +602,8 @@ function showDayDetails(date) {
         document.getElementById('calendarPageBtn').classList.toggle('active', pageId === 'calendarPage');
     }
 
-    window.onload = () => {
-        loadData();
-        showPage('mainPage');
-    };
   
 
-window.onload = () => {
-  loadData();
-  updateCalendar(); // Call updateCalendar on page load
-  showPage('mainPage');
-};
 function updateCalendar() {
     const now = new Date();
     const monthSelect = document.getElementById('monthSelect');
@@ -657,19 +646,6 @@ document.getElementById('yearInput').onchange = function() {
   document.getElementById('customStartDate').addEventListener('change', updateSummary);
 document.getElementById('customEndDate').addEventListener('change', updateSummary);
 
-</script>
-  <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then((registration) => {
-          console.log('Service Worker registered successfully:', registration.scope);
-        })
-        .catch((error) => {
-          console.log('Service Worker registration failed:', error);
-        });
-    });
-  }
 </script>
 </body>
 </html>
