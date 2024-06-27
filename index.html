@@ -309,17 +309,95 @@
     </div>
       <button onclick="exportToCSV()">Exportuj dane do CSV</button>
 </div>
-    <div class="bottom-nav">
-        <button onclick="showPage('mainPage')" id="mainPageBtn">Główna</button>
-        <button onclick="showPage('calendarPage')" id="calendarPageBtn">Kalendarz</button>
-    </div>
+    
 
+<div id="settingsPage" style="display: none;">
+    <h1>Settings</h1>
+    <button onclick="backupData()">Backup Data</button>
+    <button onclick="restoreData()">Restore Data</button>
+    <input type="file" id="restoreFile" style="display: none;" onchange="handleFileUpload(event)">
+    <button id="authButton" onclick="handleAuthClick()">Authorize Google Drive</button>
+    <button onclick="backupToGDrive()" id="gdriveBackupButton" style="display: none;">Backup to Google Drive</button>
+    <button onclick="restoreFromGDrive()" id="gdriveRestoreButton" style="display: none;">Restore from Google Drive</button>
+</div>
+  
+  <div class="bottom-nav">
+    <button onclick="showPage('mainPage')" id="mainPageBtn">Główna</button>
+    <button onclick="showPage('calendarPage')" id="calendarPageBtn">Kalendarz</button>
+    <button onclick="showPage('settingsPage')" id="settingsPageBtn">Ustawienia</button>
+</div>
+  
   <script>
     const HOURLY_RATE = 11.17;
     const PLN_RATE = 4.33;
     let workData = {};
     let intervalId;
 
+  function backupData() {
+    const data = JSON.stringify(workData);
+    const blob = new Blob([data], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'work_data_backup.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function restoreData() {
+    document.getElementById('restoreFile').click();
+}
+
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            workData = JSON.parse(e.target.result);
+            saveData();
+            loadData();
+            alert('Data restored successfully!');
+        } catch (error) {
+            alert('Error restoring data. Please ensure you selected a valid backup file.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// Google Drive API functions (these are just skeletons, youll need to implement the full logic)
+let isAuthorized = false;
+
+function handleAuthClick() {
+    if (!isAuthorized) {
+        // Implement Google OAuth here
+        // When authorized, set isAuthorized to true and show the Google Drive buttons
+        isAuthorized = true;
+        document.getElementById('gdriveBackupButton').style.display = 'inline-block';
+        document.getElementById('gdriveRestoreButton').style.display = 'inline-block';
+    }
+}
+
+function backupToGDrive() {
+    if (isAuthorized) {
+        // Implement backup to Google Drive here
+        console.log('Backing up to Google Drive...');
+    } else {
+        alert('Please authorize access to Google Drive first.');
+    }
+}
+
+function restoreFromGDrive() {
+    if (isAuthorized) {
+        // Implement restore from Google Drive here
+        console.log('Restoring from Google Drive...');
+    } else {
+        alert('Please authorize access to Google Drive first.');
+    }
+}
+  
+  
     function loadData() {
         workData = JSON.parse(localStorage.getItem('workData') || '{}');
         updateEarnings();
@@ -536,11 +614,20 @@ function showDayDetails(date) {
     const detailsEl = document.getElementById('dayDetails');
     if (workData[date]) {
         const { startTime, endTime } = workData[date];
+        const workDate = new Date(date);
+        const weekdays = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
+        const weekday = weekdays[workDate.getDay()];
+        const start = new Date(`${date}T${startTime}`);
+        const end = new Date(`${date}T${endTime}`);
+        if (end < start) end.setDate(end.getDate() + 1);
+        const hours = ((end - start) / 3600000).toFixed(2);
+
         detailsEl.innerHTML = `
             <h2>${date}</h2>
             <p>Start: ${startTime}</p>
             <p>Koniec: ${endTime}</p>
             <button onclick="editWorkDay('${date}')">Edytuj</button>
+            <button onclick="copyDayInfoAsText('${date}', '${weekday}', '${startTime}', '${endTime}', ${hours})">Kopiuj jako tekst</button>
         `;
     } else {
         detailsEl.innerHTML = `
@@ -550,6 +637,17 @@ function showDayDetails(date) {
         `;
     }
 }
+  
+  function copyDayInfoAsText(date, weekday, startTime, endTime, hours) {
+    const formattedText = `${date} ${weekday}: od ${startTime} do ${endTime} - ${Math.floor(hours)} Godzin`;
+    
+    navigator.clipboard.writeText(formattedText).then(() => {
+        alert('Skopiowano do schowka!');
+    }).catch(err => {
+        console.error('Nie udało się skopiować tekstu: ', err);
+    });
+}
+  
 
     function editWorkDay(date) {
         const { startTime, endTime } = workData[date];
@@ -595,14 +693,16 @@ function showDayDetails(date) {
             showDayDetails(date);
         }
     }
-
-    function showPage(pageId) {
-        document.getElementById('mainPage').style.display = pageId === 'mainPage' ? 'block' : 'none';
-        document.getElementById('calendarPage').style.display = pageId === 'calendarPage' ? 'block' : 'none';
-        document.getElementById('mainPageBtn').classList.toggle('active', pageId === 'mainPage');
-        document.getElementById('calendarPageBtn').classList.toggle('active', pageId === 'calendarPage');
-    }
-
+  
+  
+function showPage(pageId) {
+    document.getElementById('mainPage').style.display = pageId === 'mainPage' ? 'block' : 'none';
+    document.getElementById('calendarPage').style.display = pageId === 'calendarPage' ? 'block' : 'none';
+    document.getElementById('settingsPage').style.display = pageId === 'settingsPage' ? 'block' : 'none';
+    document.getElementById('mainPageBtn').classList.toggle('active', pageId === 'mainPage');
+    document.getElementById('calendarPageBtn').classList.toggle('active', pageId === 'calendarPage');
+    document.getElementById('settingsPageBtn').classList.toggle('active', pageId === 'settingsPage');
+}
   
 
 function updateCalendar() {
