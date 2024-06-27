@@ -1,10 +1,71 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#fc4503">
+<link rel="apple-touch-icon" href="/icon-192x192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator zarobków</title>
     <style>
+  #summarySection {
+    margin-top: 20px;
+}
+
+#summarySection h2 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+}
+
+#summarySection .input-group {
+    margin-bottom: 15px;
+}
+
+#summarySection label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--accent-color);
+}
+
+#summarySection select,
+#summarySection input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 16px;
+  outline: 1px solid var(--accent-color);
+}
+
+#summarySection select:focus,
+#summarySection input[type="date"]:focus {
+    outline: 2px solid var(--accent-color);
+}
+
+#customDateRange {
+    display: flex;
+    justify-content: space-between;
+}
+
+#customDateRange .input-group {
+    width: 48%;
+}
+
+#summaryResults {
+    margin-top: 20px;
+}
+
+#summaryResults p {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+#summaryResults span {
+    color: var(--accent-color);
+    font-weight: bold;
+}
   .calendar-day {
     background-color: var(--card-bg);
     border-radius: 4px;
@@ -219,13 +280,36 @@
 <div id="calendar">
   </div>
 
-<div id="totalHours">
-  <h2>Wszystkie godziny: <span id="allHours">0.00</span></h2>
-</div>
+<div id="dayDetails" class="card"></div>
 
-        <div id="dayDetails" class="card"></div>
+<div id="summarySection" class="card">
+        <h2>Podsumowanie</h2>
+        <div class="input-group">
+            <label for="summaryPeriod">Okres:</label>
+            <select id="summaryPeriod" onchange="updateSummary()">
+                <option value="year">Ten rok</option>
+                <option value="month">Ten miesiąc</option>
+                <option value="week">Ten tydzień</option>
+                <option value="custom">Niestandardowy</option>
+            </select>
+        </div>
+        <div id="customDateRange" style="display: none;">
+            <div class="input-group">
+                <label for="customStartDate">Od:</label>
+                <input type="date" id="customStartDate" onchange="updateSummary()">
+            </div>
+            <div class="input-group">
+                <label for="customEndDate">Do:</label>
+                <input type="date" id="customEndDate" onchange="updateSummary()">
+            </div>
+        </div>
+        <div id="summaryResults">
+            <p>Całkowite godziny: <span id="totalHours">0.00</span></p>
+            <p>Zarobki: <span id="totalEarnings">0.00</span> EUR</p>
+            <p>Zarobki: <span id="totalEarningsPLN">0.00</span> PLN</p>
+        </div>
     </div>
-
+</div>
     <div class="bottom-nav">
         <button onclick="showPage('mainPage')" id="mainPageBtn">Główna</button>
         <button onclick="showPage('calendarPage')" id="calendarPageBtn">Kalendarz</button>
@@ -311,9 +395,65 @@
   }, 50);
 }
 
+  function updateSummary() {
+    const period = document.getElementById('summaryPeriod').value;
+    const customDateRange = document.getElementById('customDateRange');
+    
+    if (period === 'custom') {
+        customDateRange.style.display = 'block';
+    } else {
+        customDateRange.style.display = 'none';
+    }
+
+    let startDate, endDate;
+    const now = new Date();
+
+    switch (period) {
+        case 'year':
+            startDate = new Date(now.getFullYear(), 0, 1);
+            endDate = new Date(now.getFullYear(), 11, 31);
+            break;
+        case 'month':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            break;
+        case 'week':
+            startDate = new Date(now.setDate(now.getDate() - now.getDay()));
+            endDate = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+            break;
+        case 'custom':
+            startDate = new Date(document.getElementById('customStartDate').value);
+            endDate = new Date(document.getElementById('customEndDate').value);
+            break;
+    }
+
+    calculateSummary(startDate, endDate);
+}
+
+function calculateSummary(startDate, endDate) {
+    let totalHours = 0;
+    let totalEarnings = 0;
+
+    for (const [date, data] of Object.entries(workData)) {
+        const workDate = new Date(date);
+        if (workDate >= startDate && workDate <= endDate) {
+            const start = new Date(`${date}T${data.startTime}`);
+            const end = new Date(`${date}T${data.endTime}`);
+            if (end < start) end.setDate(end.getDate() + 1);
+            const hours = (end - start) / 3600000;
+            totalHours += hours;
+            totalEarnings += hours * HOURLY_RATE;
+        }
+    }
+
+    document.getElementById('totalHours').textContent = totalHours.toFixed(2);
+    document.getElementById('totalEarnings').textContent = totalEarnings.toFixed(2);
+    document.getElementById('totalEarningsPLN').textContent = (totalEarnings * PLN_RATE).toFixed(2);
+}
 
     function updateCalendar() {
             renderCalendar();
+      updateSummary();
         }
 
         function renderCalendar() {
@@ -514,6 +654,22 @@ document.getElementById('yearInput').onchange = function() {
     this.dataset.userSelected = 'true';
     updateCalendar();
 };
+  document.getElementById('customStartDate').addEventListener('change', updateSummary);
+document.getElementById('customEndDate').addEventListener('change', updateSummary);
+
+</script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then((registration) => {
+          console.log('Service Worker registered successfully:', registration.scope);
+        })
+        .catch((error) => {
+          console.log('Service Worker registration failed:', error);
+        });
+    });
+  }
 </script>
 </body>
 </html>
