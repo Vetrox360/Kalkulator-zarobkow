@@ -245,6 +245,21 @@
 .bottom-nav button.active .nav-icon {
     filter: saturate(100%)
 }
+  :root {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --accent-color: #fc4503;
+    --input-bg: #1e1e1e;
+    --card-bg: #1c1c1c;
+}
+
+body.light-mode {
+    --bg-color: #f0f0f0;
+    --text-color: #333333;
+    --accent-color: #fc4503;
+    --input-bg: #ffffff;
+    --card-bg: #ffffff;
+}
     </style>
 </head>
 <body>
@@ -332,6 +347,10 @@
 
 <div id="settingsPage" style="display: none;">
     <h1>Settings</h1>
+    <div class="input-group">
+        <label for="themeToggle">Theme:</label>
+        <button id="themeToggle" onclick="toggleTheme()">Toggle Light/Dark Mode</button>
+    </div>
     <button onclick="backupData()">Backup Data</button>
     <button onclick="restoreData()">Restore Data</button>
     <input type="file" id="restoreFile" style="display: none;" onchange="handleFileUpload(event)">
@@ -728,6 +747,7 @@ function showPage(pageId) {
     document.getElementById('mainPageBtn').classList.toggle('active', pageId === 'mainPage');
     document.getElementById('calendarPageBtn').classList.toggle('active', pageId === 'calendarPage');
     document.getElementById('settingsPageBtn').classList.toggle('active', pageId === 'settingsPage');
+  
 }
   
 
@@ -755,10 +775,29 @@ function updateCalendar() {
     showDayDetails(todayString);
 }
 
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    saveThemePreference();
+}
+
+function saveThemePreference() {
+    const isLightMode = document.body.classList.contains('light-mode');
+    localStorage.setItem('lightMode', isLightMode);
+}
+
+function loadThemePreference() {
+    const isLightMode = localStorage.getItem('lightMode') === 'true';
+    if (isLightMode) {
+        document.body.classList.add('light-mode');
+    }
+}
+
+// Add this to the existing window.onload function
 window.onload = () => {
     loadData();
-    updateCalendar(); // This will now set to the current month on page load
+    updateCalendar();
     showPage('mainPage');
+    loadThemePreference(); // Add this line
 };
 
 // Modify these event listeners to set a flag when user changes the value
