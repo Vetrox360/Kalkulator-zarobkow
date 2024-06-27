@@ -307,8 +307,8 @@
             <p>Zarobki: <span id="totalEarningsPLN">0.00</span> PLN</p>
         </div>
     </div>
-      <button onclick="exportToCSV()">Export to CSV</button>
-<button onclick="exportToSpreadsheet()">Export to Spreadsheet</button></div>
+      <button onclick="exportToCSV()">Exportuj dane do CSV</button>
+</div>
     <div class="bottom-nav">
         <button onclick="showPage('mainPage')" id="mainPageBtn">Główna</button>
         <button onclick="showPage('calendarPage')" id="calendarPageBtn">Kalendarz</button>
@@ -666,44 +666,6 @@ document.getElementById('customEndDate').addEventListener('change', updateSummar
     document.body.appendChild(link); // Required for Firefox
     link.click();
     document.body.removeChild(link); // Clean up after download
-}
-  function exportToCSV() {
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Date,Start Time,End Time,Hours Worked\n";
-    
-    for (const [date, data] of Object.entries(workData)) {
-        const start = new Date(date + 'T' + data.startTime);
-        const end = new Date(date + 'T' + data.endTime);
-        if (end < start) end.setDate(end.getDate() + 1);
-        const hours = (end - start) / 3600000;
-        csvContent += `${date},${data.startTime},${data.endTime},${hours.toFixed(2)}\n`;
-    }
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "work_summary.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-function exportToSpreadsheet() {
-    const wb = XLSX.utils.book_new();
-    const ws_data = [["Date", "Start Time", "End Time", "Hours Worked"]];
-
-    for (const [date, data] of Object.entries(workData)) {
-        const start = new Date(date + 'T' + data.startTime);
-        const end = new Date(date + 'T' + data.endTime);
-        if (end < start) end.setDate(end.getDate() + 1);
-        const hours = (end - start) / 3600000;
-        ws_data.push([date, data.startTime, data.endTime, hours.toFixed(2)]);
-    }
-
-    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    XLSX.utils.book_append_sheet(wb, ws, "Work Summary");
-
-    XLSX.writeFile(wb, "work_summary.xlsx");
 }
 </script>
 </body>
