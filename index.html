@@ -261,6 +261,52 @@ body.light-mode {
     --input-bg: #ffffff;
     --card-bg: #ffffff;
 }
+  .month-picker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+  
+.month-arrow {
+    background-color: rgba(00, 00, 00, 00);
+       color: var(--accent-color);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+  margin: 0 5px
+}
+
+.month-arrow:active {
+    background-color: rgba(00, 00, 00, 00);
+       color: var(--accent-color);
+}
+  .month-arrow:hover {
+    background-color: rgba(00, 00, 00, 00);
+       color: var(--accent-color);
+}
+  
+.month-arrow:focus {
+    outline: none;
+}
+
+#calendar {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+.fade-in {
+    opacity: 1;
+}
     </style>
 </head>
 <body>
@@ -292,8 +338,8 @@ body.light-mode {
         
         <!-- Month picker elements -->
         <div class="month-picker">
-            <select id="monthSelect" onchange="updateCalendar()">
-                <option value="0">Styczeń</option>
+    <button id="prevMonth" class="month-arrow">&#9650;</button>
+    <select id="monthSelect" onchange="updateCalendar()"><option value="0">Styczeń</option>
                 <option value="1">Luty</option>
                 <option value="2">Marzec</option>
                 <option value="3">Kwiecień</option>
@@ -306,8 +352,9 @@ body.light-mode {
                 <option value="10">Listopad</option>
                 <option value="11">Grudzień</option>
             </select>
-            <input type="number" id="yearInput" value="2024" min="2000" max="2100" onchange="updateCalendar()">
-        </div>
+    <button id="nextMonth" class="month-arrow">&#9660;</button>
+    <input type="number" id="yearInput" value="2024" min="2000" max="2100" onchange="updateCalendar()">
+</div>
       
 <div id="calendar">
   </div>
@@ -833,6 +880,42 @@ document.getElementById('customEndDate').addEventListener('change', updateSummar
     link.click();
     document.body.removeChild(link); // Clean up after download
 }
+  
+  function changeMonth(delta) {
+    const monthSelect = document.getElementById('monthSelect');
+    const yearInput = document.getElementById('yearInput');
+    let month = parseInt(monthSelect.value);
+    let year = parseInt(yearInput.value);
+
+    month += delta;
+    if (month < 0) {
+        month = 11;
+        year--;
+    } else if (month > 11) {
+        month = 0;
+        year++;
+    }
+
+    monthSelect.value = month;
+    yearInput.value = year;
+    animateCalendarChange();
+}
+
+function animateCalendarChange() {
+    const calendar = document.getElementById('calendar');
+    calendar.classList.add('fade-out');
+    setTimeout(() => {
+        updateCalendar();
+        calendar.classList.remove('fade-out');
+        calendar.classList.add('fade-in');
+        setTimeout(() => {
+            calendar.classList.remove('fade-in');
+        }, 300);
+    }, 300);
+}
+
+document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
+document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
 </script>
 </body>
 </html>
