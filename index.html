@@ -6,6 +6,12 @@
     <title>Kalkulator zarobków</title>
     <link rel="icon" type="image/png" href="Logo.png">
   <style>
+  
+  .hours.day-off {
+    background-color: #808080;
+    color: #ffffff;
+}
+  
   #summarySection {
     margin-top: 20px;
 }
@@ -236,6 +242,12 @@
     flex-direction: column;
     align-items: center;
 }
+  
+  .hours.day-off {
+    background-color: #808080;
+    color: #ffffff;
+}
+  
 
 .nav-icon {
     width: 24px;
@@ -626,65 +638,72 @@ function calculateSummary(startDate, endDate) {
         }
 
         function renderCalendar() {
-            const calendarEl = document.getElementById('calendar');
-            const monthSelect = document.getElementById('monthSelect');
-            const yearInput = document.getElementById('yearInput');
-            const selectedMonth = parseInt(monthSelect.value, 10);
-            const selectedYear = parseInt(yearInput.value, 10);
+    const calendarEl = document.getElementById('calendar');
+    const monthSelect = document.getElementById('monthSelect');
+    const yearInput = document.getElementById('yearInput');
+    const selectedMonth = parseInt(monthSelect.value, 10);
+    const selectedYear = parseInt(yearInput.value, 10);
 
-            calendarEl.innerHTML = '';
-            const firstDay = new Date(selectedYear, selectedMonth, 1);
-            const lastDay = new Date(selectedYear, selectedMonth + 1, 0);
+    calendarEl.innerHTML = '';
+    const firstDay = new Date(selectedYear, selectedMonth, 1);
+    const lastDay = new Date(selectedYear, selectedMonth + 1, 0);
 
-            // Add day labels
-            const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            dayLabels.forEach((day, index) => {
-                const dayLabel = document.createElement('div');
-                dayLabel.className = 'calendar-day-label';
-                if (index === 6) {
-                    dayLabel.classList.add('sunday');
-                }
-                dayLabel.textContent = day;
-                calendarEl.appendChild(dayLabel);
-            });
+    // Add day labels
+    const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    dayLabels.forEach((day, index) => {
+        const dayLabel = document.createElement('div');
+        dayLabel.className = 'calendar-day-label';
+        if (index === 6) {
+            dayLabel.classList.add('sunday');
+        }
+        dayLabel.textContent = day;
+        calendarEl.appendChild(dayLabel);
+    });
 
-            // Calculate the number of empty cells before the first day of the month
-            let firstDayOfWeek = firstDay.getDay() - 1;
-            if (firstDayOfWeek === -1) firstDayOfWeek = 6; // Sunday should be 6 when starting from Monday
+    // Calculate the number of empty cells before the first day of the month
+    let firstDayOfWeek = firstDay.getDay() - 1;
+    if (firstDayOfWeek === -1) firstDayOfWeek = 6; // Sunday should be 6 when starting from Monday
 
-            for (let i = 0; i < firstDayOfWeek; i++) {
-                calendarEl.appendChild(document.createElement('div'));
-            }
+    for (let i = 0; i < firstDayOfWeek; i++) {
+        calendarEl.appendChild(document.createElement('div'));
+    }
 
-            for (let d = 1; d <= lastDay.getDate(); d++) {
-                const dayEl = document.createElement('div');
-                dayEl.className = 'calendar-day';
-                
-                // Check if it is a Sunday
-                const currentDate = new Date(selectedYear, selectedMonth, d);
-                if (currentDate.getDay() === 0) {
-                    dayEl.classList.add('sunday');
-                }
-                
-                dayEl.textContent = d;
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day';
+        
+        // Check if it is a Sunday
+        const currentDate = new Date(selectedYear, selectedMonth, d);
+        if (currentDate.getDay() === 0) {
+            dayEl.classList.add('sunday');
+        }
+        
+        dayEl.textContent = d;
 
-                const date = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                if (workData[date]) {
-                    const start = new Date(`${date}T${workData[date].startTime}`);
-                    const end = new Date(`${date}T${workData[date].endTime}`);
-                    if (end < start) end.setDate(end.getDate() + 1);
-                    const hours = (end - start) / 3600000;
-                    const hoursDisplay = hours % 1 === 0 ? `${Math.floor(hours)}h` : `${hours.toFixed(1)}h`;
-                    const hoursEl = document.createElement('div');
-                    hoursEl.className = 'hours';
-                    hoursEl.textContent = hoursDisplay;
-                    dayEl.appendChild(hoursEl);
-                }
-
-                dayEl.onclick = () => showDayDetails(date);
-                calendarEl.appendChild(dayEl);
+        const date = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        if (workData[date]) {
+            if (workData[date].isDayOff) {
+                const hoursEl = document.createElement('div');
+                hoursEl.className = 'hours day-off';
+                hoursEl.textContent = '0';
+                dayEl.appendChild(hoursEl);
+            } else {
+                const start = new Date(`${date}T${workData[date].startTime}`);
+                const end = new Date(`${date}T${workData[date].endTime}`);
+                if (end < start) end.setDate(end.getDate() + 1);
+                const hours = (end - start) / 3600000;
+                const hoursDisplay = hours % 1 === 0 ? `${Math.floor(hours)}h` : `${hours.toFixed(1)}h`;
+                const hoursEl = document.createElement('div');
+                hoursEl.className = 'hours';
+                hoursEl.textContent = hoursDisplay;
+                dayEl.appendChild(hoursEl);
             }
         }
+
+        dayEl.onclick = () => showDayDetails(date);
+        calendarEl.appendChild(dayEl);
+    }
+}
 
 function showDayDetails(date) {
     // Remove the selected class from any previously selected date
@@ -726,8 +745,17 @@ function showDayDetails(date) {
             <h2>${date}</h2>
             <p>Brak danych o pracy</p>
             <button onclick="addWorkDay('${date}')">Dodaj godziny pracy</button>
+      <button onclick="setDayOff('${date}')">Dzień wolny</button>
         `;
     }
+}
+  
+  function setDayOff(date) {
+    workData[date] = { startTime: '00:00', endTime: '00:00', isDayOff: true };
+    saveData();
+    updateEarnings();
+    renderCalendar();
+    showDayDetails(date);
 }
   
   function copyDayInfoAsText(date, weekday, startTime, endTime, hours) {
