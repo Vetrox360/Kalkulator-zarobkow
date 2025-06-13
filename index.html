@@ -324,16 +324,17 @@ body.light-mode {
 <body>
     <div id="mainPage">
         <h1>Kalkulator zarobków</h1>
-        <div class="card">
-            <div class="input-group" style="text-align: center; margin-bottom: 15px;">
-  <label for="mainYearPicker">Rok:</label>
-  <input type="number" id="mainYearPicker" value="2024" min="2000" max="2100" style="width: 100px;" onchange="updateEarnings()">
-            </div>
+        
+      <div class="card">
           <div class="result">Zarobki:</div>
             <div class="result"><span id="earnings"></span> EUR</div>
             <div class="result"><span id="earningsPLN"></span> PLN</div>
             <div class="result">Godziny: <span id="hoursWorked">0.00</span></div>
-        </div>
+        <br> <div class="month-picker">
+  <button id="mainYearDown" class="month-arrow">&#9660;</button>
+  <input type="number" id="mainYearInput" value="2025" min="2000" max="2100" style="width: 80px;" readonly>
+  <button id="mainYearUp" class="month-arrow">&#9650;</button>
+</div> </div>
       
         <div class="card">
             <div class="input-group">
@@ -437,7 +438,7 @@ body.light-mode {
   
   <script>
     const HOURLY_RATE = 11.17;
-    const PLN_RATE = 4.28;
+    const PLN_RATE = 4.30;
     let workData = {};
     let intervalId;
 
@@ -545,6 +546,12 @@ function restoreFromGDrive() {
         const [wholePart, decimalPart] = amount.toFixed(5).split('.');
         return `<span class="big-number">${wholePart}.${decimalPart.slice(0,2)}</span><span class="small-decimals">${decimalPart.slice(2)}</span>`;
     }
+  
+  function getSelectedMainYear() {
+  const input = document.getElementById("mainYearInput");
+  const year = parseInt(input?.value, 10);
+  return isNaN(year) ? new Date().getFullYear() : year;
+}
 
     function updateEarnings() {
   clearInterval(intervalId);
@@ -552,42 +559,24 @@ function restoreFromGDrive() {
     let totalHours = 0;
     const now = new Date();
     const today = now.toISOString().split('T')[0];
-    
-    const selectedYearInput = document.getElementById('mainYearPicker');
-    const selectedYear = selectedYearInput ? parseInt(selectedYearInput.value) : now.getFullYear();
 
-    for (const [date, data] of Object.entries(workData)) {
-      const workYear = new Date(date).getFullYear();
-      if (workYear !== selectedYear) continue;
+    const selectedYear = getSelectedMainYear();
 
-      if (date === today) {
-        const start = new Date(date + 'T' + data.startTime);
-        const end = new Date(date + 'T' + data.endTime);
-        if (end < start) end.setDate(end.getDate() + 1);
-        totalHours += (Math.min(now, end) - start) / 3600000;
-      } else {
-        const start = new Date(date + 'T' + data.startTime);
-        const end = new Date(date + 'T' + data.endTime);
-        if (end < start) end.setDate(end.getDate() + 1);
-        totalHours += (end - start) / 3600000;
-      }
-    }
+for (const [date, data] of Object.entries(workData)) {
+  const year = new Date(date).getFullYear();
+  if (year !== selectedYear) continue;
 
-    const earnings = totalHours * HOURLY_RATE;
-    const earningsPLN = earnings * PLN_RATE;
+  const start = new Date(date + 'T' + data.startTime);
+  const end = new Date(date + 'T' + data.endTime);
+  if (end < start) end.setDate(end.getDate() + 1);
 
-    document.getElementById('earnings').innerHTML = formatMoney(earnings);
-    document.getElementById('earningsPLN').innerHTML = formatMoney(earningsPLN);
-    document.getElementById('hoursWorked').textContent = totalHours.toFixed(2);
-
-    // Update allHours element if it exists
-    const allHoursEl = document.getElementById('allHours');
-    if (allHoursEl) {
-      allHoursEl.textContent = totalHours.toFixed(2);
-    }
-
-  }, 50);
+  if (date === today) {
+    totalHours += (Math.min(now, end) - start) / 3600000;
+  } else {
+    totalHours += (end - start) / 3600000;
+  }
 }
+ 
 
     const earnings = totalHours * HOURLY_RATE;
     const earningsPLN = earnings * PLN_RATE;
@@ -970,6 +959,19 @@ function animateCalendarChange() {
 
 document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
 document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
-</script>
+
+ document.getElementById('mainYearUp').addEventListener('click', () => {
+  const yearInput = document.getElementById('mainYearInput');
+  yearInput.value = Math.min(2100, parseInt(yearInput.value) + 1);
+  updateEarnings();
+});
+
+document.getElementById('mainYearDown').addEventListener('click', () => {
+  const yearInput = document.getElementById('mainYearInput');
+  yearInput.value = Math.max(2000, parseInt(yearInput.value) - 1);
+  updateEarnings();
+});
+ 
+ </script>
 </body>
 </html>
