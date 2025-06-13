@@ -325,6 +325,10 @@ body.light-mode {
     <div id="mainPage">
         <h1>Kalkulator zarobków</h1>
         <div class="card">
+            <div class="input-group" style="text-align: center; margin-bottom: 15px;">
+  <label for="mainYearPicker">Rok:</label>
+  <input type="number" id="mainYearPicker" value="2024" min="2000" max="2100" style="width: 100px;" onchange="updateEarnings()">
+            </div>
           <div class="result">Zarobki:</div>
             <div class="result"><span id="earnings"></span> EUR</div>
             <div class="result"><span id="earningsPLN"></span> PLN</div>
@@ -433,7 +437,7 @@ body.light-mode {
   
   <script>
     const HOURLY_RATE = 11.17;
-    const PLN_RATE = 4.30;
+    const PLN_RATE = 4.28;
     let workData = {};
     let intervalId;
 
@@ -548,8 +552,14 @@ function restoreFromGDrive() {
     let totalHours = 0;
     const now = new Date();
     const today = now.toISOString().split('T')[0];
+    
+    const selectedYearInput = document.getElementById('mainYearPicker');
+    const selectedYear = selectedYearInput ? parseInt(selectedYearInput.value) : now.getFullYear();
 
     for (const [date, data] of Object.entries(workData)) {
+      const workYear = new Date(date).getFullYear();
+      if (workYear !== selectedYear) continue;
+
       if (date === today) {
         const start = new Date(date + 'T' + data.startTime);
         const end = new Date(date + 'T' + data.endTime);
@@ -562,6 +572,22 @@ function restoreFromGDrive() {
         totalHours += (end - start) / 3600000;
       }
     }
+
+    const earnings = totalHours * HOURLY_RATE;
+    const earningsPLN = earnings * PLN_RATE;
+
+    document.getElementById('earnings').innerHTML = formatMoney(earnings);
+    document.getElementById('earningsPLN').innerHTML = formatMoney(earningsPLN);
+    document.getElementById('hoursWorked').textContent = totalHours.toFixed(2);
+
+    // Update allHours element if it exists
+    const allHoursEl = document.getElementById('allHours');
+    if (allHoursEl) {
+      allHoursEl.textContent = totalHours.toFixed(2);
+    }
+
+  }, 50);
+}
 
     const earnings = totalHours * HOURLY_RATE;
     const earningsPLN = earnings * PLN_RATE;
