@@ -132,6 +132,7 @@
         }
         .input-group {
             margin-bottom: 15px;
+          
         }
         label {
             display: block;
@@ -233,6 +234,19 @@
             background-color: var(--input-bg);
             color: var(--text-color);
         }
+  
+  .year-picker select, .year-picker input {
+            width: 50px;
+    display: flex;
+    justify-content: center;
+    margin: 0 5px;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+  
   .bottom-nav button {
     background-color: transparent;
     border: none;
@@ -330,11 +344,9 @@ body.light-mode {
             <div class="result"><span id="earnings"></span> EUR</div>
             <div class="result"><span id="earningsPLN"></span> PLN</div>
             <div class="result">Godziny: <span id="hoursWorked">0.00</span></div>
-        <br> <div class="month-picker">
-  <button id="mainYearDown" class="month-arrow">&#9660;</button>
-  <input type="number" id="mainYearInput" value="2025" min="2000" max="2100" style="width: 80px;" readonly>
-  <button id="mainYearUp" class="month-arrow">&#9650;</button>
-</div> </div>
+        <br> <div class="year-picker">
+          <input type="number" id="mainYearInput" value="2025" min="2000" max="2100">
+ </div> </div>
       
         <div class="card">
             <div class="input-group">
