@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator zarobków</title>
     <link rel="icon" type="image/png" href="Logo.png">
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#fc4503">
   <style>
   
   .hours.day-off {
@@ -977,6 +979,32 @@ document.getElementById('customEndDate').addEventListener('change', updateSummar
     yearInput.value = year;
     animateCalendarChange();
 }
+  
+  
+  let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // Optional: show custom install button
+  const installBtn = document.createElement('button');
+  installBtn.textContent = 'Zainstaluj aplikację';
+  installBtn.style.position = 'fixed';
+  installBtn.style.bottom = '20px';
+  installBtn.style.left = '20px';
+  installBtn.style.zIndex = 1000;
+  installBtn.onclick = () => {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choiceResult => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the A2HS prompt');
+      }
+      deferredPrompt = null;
+      installBtn.remove();
+    });
+  };
+  document.body.appendChild(installBtn);
+});
 
 function animateCalendarChange() {
     const calendar = document.getElementById('calendar');
@@ -1005,7 +1033,15 @@ document.getElementById('mainYearDown').addEventListener('click', () => {
   yearInput.value = Math.max(2000, parseInt(yearInput.value) - 1);
   updateEarnings();
 });
- 
+ if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('Service Worker registered:', reg);
+    }).catch(err => {
+      console.log('Service Worker registration failed:', err);
+    });
+  });
+}
  </script>
 </body>
 </html>
