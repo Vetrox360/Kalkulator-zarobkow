@@ -235,17 +235,37 @@
             color: var(--text-color);
         }
   
-  .year-picker select, .year-picker input {
-            width: 50px;
-    display: flex;
-    justify-content: center;
-    margin: 0 5px;
-            padding: 8px;
-            border: none;
-            border-radius: 8px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
+  .year-picker {
+    width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+ 
+
+.year-picker .arrow-column {
+  display: flex;
+  flex-direction: column;
+  margin-left: 5px;
+}
+
+.year-picker .month-arrow {
+  width: 45px;
+  height: 30px;
+  padding: 0;
+  font-size: 16px;
+  background: none;
+  color: var(--accent-color);
+  border-radius: 4px;
+  margin: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.year-picker .month-arrow:hover {
+  background-color: var(--input-bg);
+}
   
   .bottom-nav button {
     background-color: transparent;
@@ -346,7 +366,9 @@ body.light-mode {
             <div class="result">Godziny: <span id="hoursWorked">0.00</span></div>
         <br> <div class="year-picker">
           <input type="number" id="mainYearInput" value="2025" min="2000" max="2100">
- </div> </div>
+          <button id="mainYearDown" class="month-arrow">&#9660;</button>
+          <button id="mainYearUp" class="month-arrow">&#9650;</button>
+        </div> </div>
       
         <div class="card">
             <div class="input-group">
