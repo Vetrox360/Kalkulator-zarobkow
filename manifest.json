@@ -3,7 +3,7 @@
   "short_name": "Zarobki",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#121212",
+  "background_color": "#111111",
   "theme_color": "#111111",
   "icons": [
     {
