@@ -251,16 +251,6 @@
       cursor: pointer;
     }
 
-    /* Fill: no transition for instant response */
-    .tp-fill {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      background: var(--accent);
-      border-radius: var(--r-sm);
-      pointer-events: none;
-    }
-
     /* Thumb: smooth continuous movement, no snapping */
     .tp-thumb {
       position: absolute;
@@ -279,7 +269,6 @@
       touch-action: none;
       z-index: 2;
       transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
-      /* 'left' NOT transitioned — set via JS directly for smooth drag */
     }
     .tp-thumb:active { cursor: grabbing; }
     .tp-thumb.pressed {
@@ -313,9 +302,16 @@
       background: rgba(255,255,255,0.18);
       transform: translateY(-50%);
       border-radius: 0.5px;
+      transition: background 0.1s ease;
+    }
+    .tp-tick.active {
+      background: var(--accent);
     }
     body.light .tp-tick {
       background: rgba(0,0,0,0.15);
+    }
+    body.light .tp-tick.active {
+      background: var(--accent);
     }
 
     .tp-axis {
@@ -722,7 +718,6 @@
       <div class="tp-slider-wrap">
         <div class="tp-track">
           <div class="tp-ticks"></div>
-          <div class="tp-fill"></div>
           <div class="tp-thumb"><span></span></div>
         </div>
         <div class="tp-axis"><span>00:00</span><span>06:00</span><span>12:00</span></div>
@@ -746,7 +741,6 @@
       <div class="tp-slider-wrap">
         <div class="tp-track">
           <div class="tp-ticks"></div>
-          <div class="tp-fill"></div>
           <div class="tp-thumb"><span></span></div>
         </div>
         <div class="tp-axis"><span>12:00</span><span>18:00</span><span>24:00</span></div>
@@ -926,7 +920,6 @@
     <div class="tp-slider-wrap">
       <div class="tp-track">
         <div class="tp-ticks"></div>
-        <div class="tp-fill"></div>
         <div class="tp-thumb"><span></span></div>
       </div>
       <div class="tp-axis"><span>00:00</span><span>06:00</span><span>12:00</span></div>
@@ -950,7 +943,6 @@
     <div class="tp-slider-wrap">
       <div class="tp-track">
         <div class="tp-ticks"></div>
-        <div class="tp-fill"></div>
         <div class="tp-thumb"><span></span></div>
       </div>
       <div class="tp-axis"><span>12:00</span><span>18:00</span><span>24:00</span></div>
@@ -976,6 +968,23 @@ const GDRIVE_SCOPES    = 'https://www.googleapis.com/auth/drive.appdata';
 const GDRIVE_FILE      = 'kalkulator_backup.json';
 
 // ================================================================
+//  HAPTIC VIBRATION UTILITY
+// ================================================================
+function vibBtn() {
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+function vibSlider() {
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+// Attach vibration to all interactions on click dynamically
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.btn') || e.target.closest('.yr-btn') || e.target.closest('.mon-arrow') || e.target.closest('.nav-btn') || e.target.closest('.tp-cell') || e.target.closest('.cal-day')) {
+    vibBtn();
+  }
+});
+
+// ================================================================
 //  TIME PICKER COMPONENT
 // ================================================================
 const TP_INSTANCES = {};
@@ -998,18 +1007,15 @@ function tpCreate(id, onChange) {
     hourGroup: root.querySelector('[data-seg="hour"]'),
     minGroup: root.querySelector('[data-seg="min"]'),
     track: root.querySelector('.tp-track'),
-    fill: root.querySelector('.tp-fill'),
     thumb: root.querySelector('.tp-thumb'),
     ticks: root.querySelector('.tp-ticks'),
-    // Continuous drag position (0..1), separate from snapped value
     dragPct: null,
+    lastVibTime: null // tracking step changes for smooth vibration
   };
   TP_INSTANCES[id] = inst;
 
-  // Build tick marks (one per 30 min segment)
   tpBuildTicks(inst);
 
-  // Cell clicks
   root.querySelectorAll('[data-seg="hour"] .tp-cell').forEach(c => {
     c.addEventListener('click', (e) => { e.preventDefault(); tpFocusSeg(inst, 'hour'); });
   });
@@ -1027,12 +1033,11 @@ function tpCreate(id, onChange) {
   return inst;
 }
 
-// Build tick marks for every 30-min interval
 function tpBuildTicks(inst) {
   if (!inst.ticks) return;
   const r = tpRangeFor(inst.kind);
   const totalSteps = (r.max - r.min) * 2; // 30-min steps
-  for (let i = 1; i < totalSteps; i++) {
+  for (let i = 0; i <= totalSteps; i++) {
     const tick = document.createElement('div');
     tick.className = 'tp-tick';
     tick.style.left = `${(i / totalSteps) * 100}%`;
@@ -1150,7 +1155,7 @@ function tpBackspace(inst) {
 }
 
 function tpCommit(inst) {
-  inst.dragPct = null; // clear drag override
+  inst.dragPct = null;
   if (inst.onChange) inst.onChange(tpGetTime(inst));
   tpUpdateSlider(inst);
   validatePickers();
@@ -1206,7 +1211,6 @@ function tpRender(inst) {
   inst.minGroup.classList.toggle('active', inst.activeSeg === 'min');
 }
 
-// Update slider visuals from current value (snapped)
 function tpUpdateSlider(inst) {
   if (inst.hourVal < 0 || inst.minVal < 0) return;
   const totalMin = inst.hourVal * 60 + inst.minVal;
@@ -1217,23 +1221,24 @@ function tpUpdateSlider(inst) {
   tpApplySliderVisual(inst, pct);
 }
 
-// Apply slider visuals at arbitrary pct (no snap, no transition on thumb left)
 function tpApplySliderVisual(inst, pct) {
   const pctStr = (pct * 100).toFixed(4) + '%';
-
-  if (inst.kind === 'start') {
-    // Start: fill from thumb to right edge (orange on right)
-    inst.fill.style.left  = pctStr;
-    inst.fill.style.right = '0';
-    inst.fill.style.width = '';
-  } else {
-    // End: fill from left edge to thumb (orange on left)
-    inst.fill.style.left  = '0';
-    inst.fill.style.right = '';
-    inst.fill.style.width = pctStr;
-  }
-
   inst.thumb.style.left = pctStr;
+
+  // Highlight ticks based on active zone
+  const ticksList = inst.ticks.querySelectorAll('.tp-tick');
+  const totalTicks = ticksList.length - 1;
+  const currentTickIndex = Math.round(pct * totalTicks);
+
+  ticksList.forEach((tick, idx) => {
+    if (inst.kind === 'start') {
+      // Start Slider: active to the right of the thumb
+      tick.classList.toggle('active', idx >= currentTickIndex);
+    } else {
+      // End Slider: active to the left of the thumb
+      tick.classList.toggle('active', idx <= currentTickIndex);
+    }
+  });
 }
 
 function tpAttachSlider(inst) {
@@ -1245,17 +1250,21 @@ function tpAttachSlider(inst) {
     return Math.max(0, Math.min(1, x / rect.width));
   }
 
-  // Compute snapped value from continuous pct, update digits
   function applyPctSnapped(pct) {
     const r = tpRangeFor(inst.kind);
     const rawMin = r.min * 60 + pct * (r.max - r.min) * 60;
-    // Snap to 30-min steps for the value
     const snapped = Math.round(rawMin / 30) * 30;
     let h = Math.floor(snapped / 60);
     let m = snapped % 60;
-    // Clamp
     if (h > r.max || (h === r.max && m > 0)) { h = r.max; m = 0; }
     if (h < r.min) { h = r.min; m = 0; }
+
+    const combinedString = `${h}:${m}`;
+    if (inst.lastVibTime !== combinedString) {
+      inst.lastVibTime = combinedString;
+      vibSlider(); // Soft step vibration
+    }
+
     inst.hourVal = h;
     inst.minVal  = m;
     inst.hourBuf = '';
@@ -1272,14 +1281,11 @@ function tpAttachSlider(inst) {
     if (document.activeElement === inst.hidden) inst.hidden.blur();
     tpRender(inst);
 
-    // Press animation on thumb
     inst.thumb.classList.add('pressed');
 
     const pct = pctFromEvent(e);
     inst.dragPct = pct;
-    // Move thumb smoothly to tap position immediately
     tpApplySliderVisual(inst, pct);
-    // Snap value
     applyPctSnapped(pct);
   }
 
@@ -1288,9 +1294,7 @@ function tpAttachSlider(inst) {
     e.preventDefault();
     const pct = pctFromEvent(e);
     inst.dragPct = pct;
-    // Thumb moves continuously with finger
     tpApplySliderVisual(inst, pct);
-    // Value snaps (digits update in 30-min steps)
     applyPctSnapped(pct);
   }
 
@@ -1298,7 +1302,6 @@ function tpAttachSlider(inst) {
     if (!dragging) return;
     dragging = false;
     inst.thumb.classList.remove('pressed');
-    // Snap thumb visually to the actual snapped value
     inst.dragPct = null;
     tpUpdateSlider(inst);
   }
@@ -1995,5 +1998,5 @@ function toast(msg) {
 }
 </script>
 </body>
-  </html>
+</html>
 
