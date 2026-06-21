@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
-<head
-  <meta name="theme-color" content="#f0f0f5">
+<head>
+  <meta id="theme-meta" name="theme-color" content="#111111">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Kalkulator zarobków</title>
@@ -2149,17 +2149,31 @@ function persist() {
 
 // Przełączanie stylu motywu
 function toggleTheme() {
-  document.body.classList.toggle('light');
-  localStorage.setItem('lightMode', document.body.classList.contains('light'));
+  const body = document.body;
+  body.classList.toggle('light');
+  
+  const isLight = body.classList.contains('light');
+  localStorage.setItem('lightMode', isLight);
 
-  // Update the browser wrapper color dynamically
+  // Dynamiczna zmiana koloru paska stanu
   const metaTheme = document.getElementById('theme-meta');
-  metaTheme.setAttribute('content', isLight ? '#f0f0f5' : '#111111');
+  if (metaTheme) {
+    metaTheme.setAttribute('content', isLight ? '#f0f0f5' : '#111111');
+  }
+}
 
-}
 function loadTheme() {
-  if (localStorage.getItem('lightMode') === 'true') document.body.classList.add('light');
+  const isLight = localStorage.getItem('lightMode') === 'true';
+  if (isLight) {
+    document.body.classList.add('light');
+    // Aktualizacja paska stanu przy starcie aplikacji, jeśli zapisany był motyw jasny
+    const metaTheme = document.getElementById('theme-meta');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', '#f0f0f5');
+    }
+  }
 }
+
 
 // ================================================================
 //  GOOGLE DRIVE
