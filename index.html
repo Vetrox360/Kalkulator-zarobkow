@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta name="theme-color" content="#111111">
+  <meta name="theme-color" content=var(--status)>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Kalkulator zarobków</title>
@@ -26,8 +26,10 @@
       --danger:    #ff3b30;
       --r:         14px;
       --r-sm:      9px;
+      --status:    #111111;
       --thumb-bg:  #3a3a3a;
-      --thumb-ridge: rgba(255,255,255,0.35);
+      --thumb-ridge: rgba(255,255,255,0.35)
+      ;
     }
 
     body.light {
@@ -37,6 +39,7 @@
       --text:     #111111;
       --muted:    #6e6e73;
       --border:   rgba(0,0,0,0.07);
+      --status:    #f0f0f5;
       --thumb-bg: #ffffff;
       --thumb-ridge: rgba(0,0,0,0.35);
     }
@@ -2153,6 +2156,7 @@ function toggleTheme() {
 }
 function loadTheme() {
   if (localStorage.getItem('lightMode') === 'true') document.body.classList.add('light');
+  
 }
 
 // ================================================================
