@@ -1,7 +1,8 @@
 {
   "name": "Kalkulator zarobków",
   "short_name": "Zarobki",
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "var(--bg)",
   "theme_color": "var(--bg)",
