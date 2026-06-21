@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta name="theme-color" content="#111111">
+  <meta name="theme-color" content=var(--bg)>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Kalkulator zarobków</title>
@@ -251,7 +251,6 @@
       cursor: pointer;
     }
 
-    /* Thumb: smooth continuous movement, no snapping */
     .tp-thumb {
       position: absolute;
       top: -8px;
@@ -286,7 +285,6 @@
     }
     .tp-thumb > span { background: var(--thumb-ridge); }
 
-    /* Micro tick marks on track */
     .tp-ticks {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -462,12 +460,18 @@
     #monthSelect { flex: 1; font-weight: 600; text-align: center; }
     #yearInput   { width: 74px; text-align: center; font-weight: 600; padding: 12px 6px; }
 
+    /* ============================================================
+       CALENDAR & MULTI-SELECT
+    ============================================================ */
     #calendar {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 4px;
       margin-bottom: 14px;
       transition: opacity 0.2s ease;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
     #calendar.fade { opacity: 0; }
 
@@ -499,7 +503,14 @@
     .cal-day:active { transform: scale(0.9); background: var(--surface2); }
     .cal-day.sun { color: var(--accent); }
     .cal-day.today { background: var(--surface2); }
+    
     .cal-day.sel { border-color: var(--accent); }
+    
+    .cal-day.multi-sel {
+      background: var(--accent-lo);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
 
     .cal-badge {
       background: var(--accent);
@@ -567,8 +578,10 @@
       border-top: 1px solid var(--border);
       max-height: 92dvh;
       overflow-y: auto;
+      touch-action: auto;
     }
-    .sheet.open { transform: translateY(0); }
+    .sheet.open { transform: translateY(0); transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+    .sheet.dragging { transition: none; }
 
     .sheet-handle {
       width: 34px; height: 4px;
@@ -667,18 +680,19 @@
 
     .divider { height: 1px; background: var(--border); margin: 14px 0; }
   
-  hr{
-    border: none;
-  height: 1px;
-  background-color: var(--border);
-  margin: 20px 0;
-  }
+    hr{
+      border: none;
+      height: 1px;
+      background-color: var(--border);
+      margin: 20px 0;
+    }
   </style>
 </head>
 <body>
 
 <div id="mainPage" class="page active">
   <h1>Zarobki</h1>
+  <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Podaj godzinę rozpoczęcia oraz zakończenia pracy i na żywo obserwuj wzrastający licznik zarobków.</p>
 
   <div class="card earnings-card">
     <div class="earnings-eyebrow" id="earningsYearLabel">Rok 2025</div>
@@ -762,6 +776,7 @@
 
 <div id="calendarPage" class="page">
   <h1>Kalendarz</h1>
+  <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Dotknij dnia, aby go edytować, lub przytrzymaj i przesuń, aby zaznaczyć zakres dni.</p>
 
   <div class="month-picker">
     <button class="mon-arrow" id="prevMonth">&#9650;</button>
@@ -812,9 +827,9 @@
 
 <div id="settingsPage" class="page">
   <h1>Ustawienia</h1>
+  <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Modyfikuj stawki godzinowe i kurs przewalutowania, dostosuj motyw lub eksportuj i importuj dane.</p>
 
   <div class="card settings-block">
-    <h2>Stawki</h2>
     <div class="field">
       <label for="hourlyRateInput">Stawka godzinowa (EUR)</label>
       <input type="number" id="hourlyRateInput" step="0.01" min="0" placeholder="np. 11.17">
@@ -959,7 +974,7 @@
   </div>
 
   <button class="btn btn-primary" id="sheetSaveBtn" onclick="saveSheet()">Zapisz</button>
-  <button class="btn btn-ghost" onclick="setDayOff()">Oznacz jako wolny</button>
+  <button class="btn btn-ghost" id="sheetDayOffBtn" onclick="setDayOff()">Oznacz jako wolny</button>
   <button class="btn btn-danger" id="sheetDelete" onclick="deleteEntry()">Usuń wpis</button>
 </div>
 
@@ -976,6 +991,22 @@ const GDRIVE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 const GDRIVE_SCOPES    = 'https://www.googleapis.com/auth/drive.appdata';
 const GDRIVE_FILE      = 'kalkulator_backup.json';
 
+// Zmienne do selekcji wielu dni
+let isSelectingCalendar = false;
+let selectedDates = new Set();
+let sheetDate = null; 
+
+// Zmienne do obsługi Long Press i Sekwencyjnego Zaznaczania Tekstowego
+let calendarTouchTimer = null;
+let isLongPressed = false;
+let selectionStartDateStr = null;
+let activePointerCell = null; // Zapamiętany element rozpoczęcia kliknięcia
+
+// Zmienne do obsługi gestu przeciągnięcia w dół (Swipe Down to Dismiss)
+let sheetDragStartY = 0;
+let sheetDragCurrentY = 0;
+let isDraggingSheet = false;
+
 // ================================================================
 //  HAPTIC VIBRATION UTILITY
 // ================================================================
@@ -986,7 +1017,6 @@ function vibSlider() {
   if (navigator.vibrate) navigator.vibrate(8);
 }
 
-// Attach vibration to all interactions on click dynamically
 document.addEventListener('click', (e) => {
   if (e.target.closest('.btn') || e.target.closest('.yr-btn') || e.target.closest('.mon-arrow') || e.target.closest('.nav-btn') || e.target.closest('.tp-cell') || e.target.closest('.cal-day')) {
     vibBtn();
@@ -1019,7 +1049,7 @@ function tpCreate(id, onChange) {
     thumb: root.querySelector('.tp-thumb'),
     ticks: root.querySelector('.tp-ticks'),
     dragPct: null,
-    lastVibTime: null // tracking step changes for smooth vibration
+    lastVibTime: null 
   };
   TP_INSTANCES[id] = inst;
 
@@ -1045,7 +1075,7 @@ function tpCreate(id, onChange) {
 function tpBuildTicks(inst) {
   if (!inst.ticks) return;
   const r = tpRangeFor(inst.kind);
-  const totalSteps = (r.max - r.min) * 2; // 30-min steps
+  const totalSteps = (r.max - r.min) * 2;
   for (let i = 0; i <= totalSteps; i++) {
     const tick = document.createElement('div');
     tick.className = 'tp-tick';
@@ -1083,7 +1113,6 @@ function tpKeydown(inst, e) {
     e.preventDefault();
     tpBackspace(inst);
   } else if (e.key === 'Tab' || e.key === 'Enter') {
-    // allow
   } else if (e.key.length === 1 && !/[0-9]/.test(e.key)) {
     e.preventDefault();
   }
@@ -1234,17 +1263,14 @@ function tpApplySliderVisual(inst, pct) {
   const pctStr = (pct * 100).toFixed(4) + '%';
   inst.thumb.style.left = pctStr;
 
-  // Highlight ticks based on active zone
   const ticksList = inst.ticks.querySelectorAll('.tp-tick');
   const totalTicks = ticksList.length - 1;
   const currentTickIndex = Math.round(pct * totalTicks);
 
   ticksList.forEach((tick, idx) => {
     if (inst.kind === 'start') {
-      // Start Slider: active to the right of the thumb
       tick.classList.toggle('active', idx >= currentTickIndex);
     } else {
-      // End Slider: active to the left of the thumb
       tick.classList.toggle('active', idx <= currentTickIndex);
     }
   });
@@ -1289,7 +1315,6 @@ function tpAttachSlider(inst) {
   }
 
   function onDown(e) {
-    // Dla myszki blokujemy domyślne akcje, dla dotyku pozwalamy na start, by sprawdzić kierunek
     if (!e.touches) e.preventDefault();
     
     dragging = true;
@@ -1305,7 +1330,6 @@ function tpAttachSlider(inst) {
 
     inst.thumb.classList.add('pressed');
 
-    // Nie aplikujemy pozycji od razu przy touchstart, czekamy na weryfikację intencji w onMove
     if (!e.touches) {
       isSliderMoving = true;
       const pct = pctFromEvent(e);
@@ -1317,8 +1341,6 @@ function tpAttachSlider(inst) {
 
   function onMove(e) {
     if (!dragging) return;
-
-    // Jeśli podczas tego przeciągnięcia uznaliśmy, że użytkownik scrolluje – nic nie rób
     if (isScrolling) return;
 
     if (e.touches && !isSliderMoving) {
@@ -1327,24 +1349,18 @@ function tpAttachSlider(inst) {
       const diffX = Math.abs(currentX - startX);
       const diffY = Math.abs(currentY - startY);
 
-      // Czekamy na minimalny ruch (np. 5 pikseli), aby określić kierunek
       if (diffX < 5 && diffY < 5) return;
-
       if (diffY > diffX) {
-        // Ruch pionowy wygrywa -> użytkownik chce scrollować stronę
         isScrolling = true;
         dragging = false;
         inst.thumb.classList.remove('pressed');
         return;
       } else {
-        // Ruch poziomy wygrywa -> aktywujemy slider
         isSliderMoving = true;
       }
     }
 
-    // Jeśli slider jest aktywny, blokujemy domyślne zachowanie (pionowy scroll) i przesuwamy thumb
     e.preventDefault();
-    
     const pct = pctFromEvent(e);
     inst.dragPct = pct;
     tpApplySliderVisual(inst, pct);
@@ -1365,12 +1381,10 @@ function tpAttachSlider(inst) {
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
 
-  // Ważne: usuwamy { passive: false } przy touchstart, by pozwolić przeglądarce na ewentualny scroll native
   inst.track.addEventListener('touchstart', onDown);
   document.addEventListener('touchmove',  onMove,  { passive: false });
   document.addEventListener('touchend',   onUp);
 }
-
 
 const PAIRS = {
   main:  { start: 'main-start',  end: 'main-end',  errEl: 'mainError',  saveBtn: 'mainSaveBtn'  },
@@ -1496,6 +1510,8 @@ window.addEventListener('load', () => {
   const now = new Date();
   document.getElementById('mainYearInput').value = now.getFullYear();
   initCalendar();
+  setupCalendarSelection(); 
+  setupSheetSwipeToDismiss();
 
   tpCreate('main-start', () => {});
   tpCreate('main-end',   () => {});
@@ -1605,10 +1621,8 @@ function resetToday() {
 }
 
 // ================================================================
-//  CALENDAR
+//  CALENDAR RENDERING
 // ================================================================
-let sheetDate = null;
-
 function initCalendar() {
   const now = new Date();
   document.getElementById('monthSelect').value = now.getMonth();
@@ -1668,8 +1682,6 @@ function renderCalendar() {
       }
       cell.appendChild(badge);
     }
-
-    cell.addEventListener('click', () => openSheet(date));
     el.appendChild(cell);
   }
 }
@@ -1705,15 +1717,187 @@ document.getElementById('mainYearDown').addEventListener('click', () => {
 document.getElementById('mainYearInput').addEventListener('change', recalc);
 
 // ================================================================
-//  BOTTOM SHEET
+//  SEKWENCYJNY SYSTEM ZAZNACZANIA (TEKSTOWY) + LONG PRESS
+// ================================================================
+function setupCalendarSelection() {
+  const cal = document.getElementById('calendar');
+  let pointerStartX = 0, pointerStartY = 0;
+  let suppressClick = false;
+
+  cal.addEventListener('pointerdown', (e) => {
+    const cell = e.target.closest('.cal-day');
+    if (!cell || !cell.dataset.date) return;
+
+    const clickedDate = cell.dataset.date;
+    isLongPressed = false;
+    pointerStartX = e.clientX;
+    pointerStartY = e.clientY;
+
+    clearTimeout(calendarTouchTimer);
+    calendarTouchTimer = setTimeout(() => {
+      isLongPressed = true;
+      isSelectingCalendar = true;
+      selectionStartDateStr = clickedDate;
+      selectedDates.clear();
+      selectedDates.add(clickedDate);
+      cell.classList.add('multi-sel');
+      vibBtn();
+      try { cal.setPointerCapture(e.pointerId); } catch(_) {}
+    }, 450);
+  });
+
+  cal.addEventListener('pointermove', (e) => {
+    // jeżeli ruszono palcem zanim odpalił long-press — anuluj timer
+    if (calendarTouchTimer && !isSelectingCalendar) {
+      const dx = Math.abs(e.clientX - pointerStartX);
+      const dy = Math.abs(e.clientY - pointerStartY);
+      if (dx > 10 || dy > 10) {
+        clearTimeout(calendarTouchTimer);
+        calendarTouchTimer = null;
+      }
+      return;
+    }
+
+    if (!isSelectingCalendar || !selectionStartDateStr) return;
+
+    const touchTarget = document.elementFromPoint(e.clientX, e.clientY);
+    if (!touchTarget) return;
+    const cell = touchTarget.closest('.cal-day');
+    if (!cell || !cell.dataset.date) return;
+
+    updateSequentialSelection(selectionStartDateStr, cell.dataset.date);
+  });
+
+  cal.addEventListener('pointerup', (e) => {
+    clearTimeout(calendarTouchTimer);
+    calendarTouchTimer = null;
+
+    if (isSelectingCalendar) {
+      isSelectingCalendar = false;
+      try { cal.releasePointerCapture(e.pointerId); } catch(_) {}
+
+      const dates = Array.from(selectedDates);
+      suppressClick = true; // zignoruj zaraz potem wygenerowany click
+      // odroczenie — pozwala syntetycznemu click'owi wykonać się PRZED pojawieniem sheeta
+      setTimeout(() => {
+        if (dates.length === 1) {
+          openSheet(dates[0]);
+        } else if (dates.length > 1) {
+          openMultiSheet();
+        }
+      }, 0);
+      return;
+    }
+    // zwykły tap obsłuży event 'click' poniżej
+  });
+
+  cal.addEventListener('pointercancel', () => {
+    clearTimeout(calendarTouchTimer);
+    calendarTouchTimer = null;
+    isSelectingCalendar = false;
+    isLongPressed = false;
+    document.querySelectorAll('.cal-day.multi-sel').forEach(el => el.classList.remove('multi-sel'));
+    selectedDates.clear();
+  });
+
+  // Zwykły tap = natywny click. Dzięki temu unikamy kolizji z overlayem.
+  cal.addEventListener('click', (e) => {
+    if (suppressClick || isLongPressed) {
+      suppressClick = false;
+      isLongPressed = false;
+      return;
+    }
+    const cell = e.target.closest('.cal-day');
+    if (!cell || !cell.dataset.date) return;
+    openSheet(cell.dataset.date);
+  });
+}
+  
+
+// Logika sekwencyjna (zaznaczanie ciągłe od daty A do B, jak zaznaczanie tekstu)
+function updateSequentialSelection(dateStrA, dateStrB) {
+  const dA = new Date(dateStrA);
+  const dB = new Date(dateStrB);
+  
+  const start = dA < dB ? dA : dB;
+  const end = dA < dB ? dB : dA;
+
+  selectedDates.clear();
+  
+  document.querySelectorAll('.cal-day').forEach(cell => {
+    if (!cell.dataset.date) return;
+    const cDate = new Date(cell.dataset.date);
+    
+    if (cDate >= start && cDate <= end) {
+      selectedDates.add(cell.dataset.date);
+      cell.classList.add('multi-sel');
+    } else {
+      cell.classList.remove('multi-sel');
+    }
+  });
+}
+
+// ================================================================
+//  GEST SWIPE DOWN TO DISMISS (ZAMYKANIE PRZEZ PRZEWINIĘCIE W DÓŁ)
+// ================================================================
+function setupSheetSwipeToDismiss() {
+  const sheet = document.getElementById('bottomSheet');
+  
+  sheet.addEventListener('touchstart', (e) => {
+    // Reaguj tylko wtedy, gdy kontener jest przescrollowany na samą górę
+    if (sheet.scrollTop <= 0) {
+      sheetDragStartY = e.touches[0].clientY;
+      isDraggingSheet = true;
+      sheet.classList.add('dragging');
+    }
+  }, { passive: true });
+
+  sheet.addEventListener('touchmove', (e) => {
+    if (!isDraggingSheet) return;
+    
+    sheetDragCurrentY = e.touches[0].clientY;
+    const deltaY = sheetDragCurrentY - sheetDragStartY;
+    
+    if (deltaY > 0) {
+      // Blokuj domyślny scroll, jeśli ciągniemy w dół od samej góry
+      if (e.cancelable) e.preventDefault();
+      sheet.style.transform = `translateY(${deltaY}px)`;
+    } else {
+      // Jeśli użytkownik zacznie ciągnąć w górę, przywróć normalny stan
+      sheet.style.transform = '';
+      isDraggingSheet = false;
+      sheet.classList.remove('dragging');
+    }
+  }, { passive: false });
+
+  sheet.addEventListener('touchend', (e) => {
+    if (!isDraggingSheet) return;
+    isDraggingSheet = false;
+    sheet.classList.remove('dragging');
+    
+    const deltaY = sheetDragCurrentY - sheetDragStartY;
+    sheet.style.transform = '';
+
+    // Jeśli przeciągnięto ponad 120px w dół, zamknij sheet
+    if (deltaY > 120) {
+      closeSheet();
+    }
+  });
+}
+
+// ================================================================
+//  BOTTOM SHEET - SINGLE & MULTI
 // ================================================================
 function openSheet(date) {
+  selectedDates.clear();
+  selectedDates.add(date); 
   sheetDate = date;
+  
   document.getElementById('sheetDate').textContent = date;
-
-  document.querySelectorAll('.cal-day.sel').forEach(el => el.classList.remove('sel'));
-  const cell = document.querySelector(`.cal-day[data-date="${date}"]`);
-  if (cell) cell.classList.add('sel');
+  
+  document.getElementById('sheetDelete').textContent = 'Usuń wpis';
+  document.getElementById('sheetDayOffBtn').textContent = 'Oznacz jako wolny';
+  document.getElementById('sheetSaveBtn').textContent = 'Zapisz';
 
   const data = workData[date];
   const s = TP_INSTANCES['sheet-start'];
@@ -1735,35 +1919,89 @@ function openSheet(date) {
   renderDayDetails(date);
 }
 
+function openMultiSheet() {
+  sheetDate = null;
+  document.getElementById('sheetDate').textContent = `Wybrane dni: ${selectedDates.size}`;
+
+  document.getElementById('sheetDelete').textContent = 'Usuń wpisy';
+  document.getElementById('sheetDayOffBtn').textContent = 'Oznacz jako wolne';
+  document.getElementById('sheetSaveBtn').textContent = 'Zapisz dla wszystkich';
+
+  const s = TP_INSTANCES['sheet-start'];
+  const e = TP_INSTANCES['sheet-end'];
+  const prev = getPreviousSession();
+  
+  tpSetTime(s, prev.start, { silent: true });
+  tpSetTime(e, prev.end,   { silent: true });
+  validatePickers();
+
+  document.getElementById('sheetDelete').style.display = 'flex';
+  
+  document.getElementById('sheetOverlay').classList.add('open');
+  document.getElementById('bottomSheet').classList.add('open');
+  document.getElementById('dayDetails').style.display = 'none'; 
+}
+
 function closeSheet() {
   document.getElementById('sheetOverlay').classList.remove('open');
   document.getElementById('bottomSheet').classList.remove('open');
+  document.getElementById('bottomSheet').style.transform = '';
+  
+  document.querySelectorAll('.cal-day.multi-sel, .cal-day.sel').forEach(el => {
+    el.classList.remove('multi-sel', 'sel');
+  });
+
+  setTimeout(() => {
+    selectedDates.clear();
+    sheetDate = null;
+  }, 300);
 }
 
 function saveSheet() {
   const s = tpGetTime(TP_INSTANCES['sheet-start']);
   const e = tpGetTime(TP_INSTANCES['sheet-end']);
   if (!s || !e) { toast('Podaj obie godziny'); return; }
+  
   const [sh,sm] = s.split(':').map(Number);
   const [eh,em] = e.split(':').map(Number);
   if (sh*60+sm >= eh*60+em) { toast('Nieprawidłowy zakres'); return; }
-  workData[sheetDate] = { startTime: s, endTime: e };
-  persist(); recalc(); renderCalendar(); renderDayDetails(sheetDate);
-  closeSheet(); toast('Zapisano!');
+
+  selectedDates.forEach(date => {
+    workData[date] = { startTime: s, endTime: e };
+  });
+
+  persist(); recalc(); renderCalendar();
+  if (selectedDates.size === 1) renderDayDetails(Array.from(selectedDates)[0]);
+  
+  closeSheet();
+  toast(selectedDates.size > 1 ? `Zapisano dla ${selectedDates.size} dni!` : 'Zapisano!');
 }
 
 function setDayOff() {
-  workData[sheetDate] = { startTime: '00:00', endTime: '00:00', isDayOff: true };
-  persist(); recalc(); renderCalendar(); renderDayDetails(sheetDate);
-  closeSheet(); toast('Oznaczono jako wolny');
+  selectedDates.forEach(date => {
+    workData[date] = { startTime: '00:00', endTime: '00:00', isDayOff: true };
+  });
+  
+  persist(); recalc(); renderCalendar();
+  if (selectedDates.size === 1) renderDayDetails(Array.from(selectedDates)[0]);
+  
+  closeSheet(); 
+  toast(selectedDates.size > 1 ? 'Oznaczono wybrane dni jako wolne' : 'Oznaczono jako wolny');
 }
 
 function deleteEntry() {
-  if (!confirm('Usunąć wpis?')) return;
-  delete workData[sheetDate];
+  const multi = selectedDates.size > 1;
+  if (!confirm(`Usunąć wpis${multi ? 'y' : ''}?`)) return;
+  
+  selectedDates.forEach(date => {
+    delete workData[date];
+  });
+  
   persist(); recalc(); renderCalendar();
   document.getElementById('dayDetails').style.display = 'none';
-  closeSheet(); toast('Usunięto');
+  
+  closeSheet(); 
+  toast('Usunięto');
 }
 
 function renderDayDetails(date) {
@@ -1908,6 +2146,7 @@ function persist() {
   scheduleGDriveSync();
 }
 
+// Przełączanie stylu motywu
 function toggleTheme() {
   document.body.classList.toggle('light');
   localStorage.setItem('lightMode', document.body.classList.contains('light'));
@@ -2055,5 +2294,4 @@ function toast(msg) {
 }
 </script>
 </body>
-      </html>
-
+</html>
