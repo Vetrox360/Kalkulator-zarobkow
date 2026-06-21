@@ -2271,7 +2271,9 @@ function triggerInstall() {
 }
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register(
+  "/Kalkulator-zarobkow/sw.js"
+);
 }
 
 // ================================================================
