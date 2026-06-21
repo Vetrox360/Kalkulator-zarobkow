@@ -719,7 +719,6 @@
   </div>
 
   <div class="card" id="mainTodayCard">
-    <div class="tp-error" id="mainError">Godzina zakończenia musi być późniejsza niż rozpoczęcia!</div>
 
     <div class="tp-block" data-tp="main-start" data-kind="start">
       <span class="tp-label">Rozpoczęcie</span>
@@ -767,6 +766,9 @@
         <div class="tp-axis"><span>12:00</span><span>18:00</span><span>24:00</span></div>
       </div>
     </div>
+    
+   <div class="tp-error" id="mainError">Godzina zakończenia musi być późniejsza niż rozpoczęcia!</div>
+
 
     <button class="btn btn-primary" id="mainSaveBtn" onclick="updateWorkTime(); window.scrollTo({ top: 0, behavior: 'smooth' });">Zapisz czas pracy</button>
     <button class="btn btn-ghost" onclick="resetToday()">Usuń dzisiejszy wpis</button>
