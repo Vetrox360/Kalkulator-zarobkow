@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+  <meta name="theme-color" conten="#111111" id="theme-meta">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Kalkulator zarobków</title>
@@ -2152,6 +2153,10 @@ function persist() {
 function toggleTheme() {
   document.body.classList.toggle('light');
   localStorage.setItem('lightMode', document.body.classList.contains('light'));
+  // Update the browser wrapper color dynamically
+  const metaTheme = document.getElementById('theme-meta');
+  metaTheme.setAttribute('content', isLight ? '#f0f0f5' : '#111111');
+
 }
 function loadTheme() {
   if (localStorage.getItem('lightMode') === 'true') document.body.classList.add('light');
