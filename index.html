@@ -28,7 +28,6 @@
       --r-sm:      9px;
       --thumb-bg:  #3a3a3a;
       --thumb-ridge: rgba(255,255,255,0.35);
-      --ticks-color: rgba(255, 255, 255, 0.08);
     }
 
     body.light {
@@ -40,7 +39,6 @@
       --border:   rgba(0,0,0,0.07);
       --thumb-bg: #ffffff;
       --thumb-ridge: rgba(0,0,0,0.35);
-      --ticks-color: rgba(0, 0, 0, 0.06);
     }
 
     html { height: 100%; background: var(--bg); }
@@ -160,7 +158,7 @@
     .btn + .btn { margin-top: 8px; }
 
     /* ============================================================
-       TIME PICKER COMPONENT (Bespoke)
+       TIME PICKER COMPONENT
     ============================================================ */
     .tp-block { margin-bottom: 20px; }
     .tp-block:last-child { margin-bottom: 0; }
@@ -246,36 +244,28 @@
       position: relative;
       height: 44px;
       background: var(--surface2);
-      background-image: repeating-linear-gradient(90deg, transparent, transparent calc(4.166% - 1px), var(--ticks-color) calc(4.166% - 1px), var(--ticks-color) 4.166%);
       border-radius: var(--r-sm);
       border: 1px solid var(--border);
-      overflow: hidden;
+      overflow: visible;
       touch-action: none;
       cursor: pointer;
     }
 
+    /* Fill: no transition for instant response */
     .tp-fill {
       position: absolute;
       top: 0;
       bottom: 0;
       background: var(--accent);
+      border-radius: var(--r-sm);
       pointer-events: none;
     }
 
-    /* Dopasowanie kierunku wypełnienia pomarańczowego tła */
-    [data-kind="start"] .tp-fill {
-      left: auto;
-      right: 0;
-    }
-    [data-kind="end"] .tp-fill {
-      left: 0;
-      right: auto;
-    }
-
+    /* Thumb: smooth continuous movement, no snapping */
     .tp-thumb {
       position: absolute;
-      top: -4px;
-      bottom: -4px;
+      top: -8px;
+      bottom: -8px;
       width: 36px;
       background: var(--thumb-bg);
       border-radius: 10px;
@@ -288,11 +278,12 @@
       cursor: grab;
       touch-action: none;
       z-index: 2;
-      transition: transform 0.15s ease;
+      transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+      /* 'left' NOT transitioned — set via JS directly for smooth drag */
     }
-    .tp-thumb:active, .tp-thumb.dragging {
-      cursor: grabbing;
-      transform: translateX(-50%) scale(0.92);
+    .tp-thumb:active { cursor: grabbing; }
+    .tp-thumb.pressed {
+      transform: translateX(-50%) scale(0.88);
     }
     .tp-thumb::before,
     .tp-thumb::after,
@@ -305,6 +296,27 @@
       border-radius: 1px;
     }
     .tp-thumb > span { background: var(--thumb-ridge); }
+
+    /* Micro tick marks on track */
+    .tp-ticks {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      border-radius: var(--r-sm);
+      overflow: hidden;
+    }
+    .tp-tick {
+      position: absolute;
+      top: 50%;
+      width: 1px;
+      height: 8px;
+      background: rgba(255,255,255,0.18);
+      transform: translateY(-50%);
+      border-radius: 0.5px;
+    }
+    body.light .tp-tick {
+      background: rgba(0,0,0,0.15);
+    }
 
     .tp-axis {
       display: flex;
@@ -420,7 +432,7 @@
       font-size: 16px;
       border-radius: var(--r-sm);
       display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
     }
     .yr-btn:active { transform: scale(0.88); background: var(--accent-lo); }
 
@@ -446,7 +458,7 @@
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
     }
     .mon-arrow:active { transform: scale(0.88); background: var(--accent-lo); }
 
@@ -596,10 +608,10 @@
       gap: 3px;
       border-radius: var(--r-sm);
       color: var(--muted);
-      transition: color 0.2s, transform 0.1s, background 0.2s;
+      transition: color 0.2s, transform 0.18s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
       padding: 6px 4px;
     }
-    .nav-btn:active { transform: scale(0.9); background: var(--surface2); }
+    .nav-btn:active { transform: scale(0.88); background: var(--surface2); }
     .nav-btn.active { color: var(--accent); }
 
     .nav-btn svg {
@@ -709,6 +721,7 @@
       </div>
       <div class="tp-slider-wrap">
         <div class="tp-track">
+          <div class="tp-ticks"></div>
           <div class="tp-fill"></div>
           <div class="tp-thumb"><span></span></div>
         </div>
@@ -732,6 +745,7 @@
       </div>
       <div class="tp-slider-wrap">
         <div class="tp-track">
+          <div class="tp-ticks"></div>
           <div class="tp-fill"></div>
           <div class="tp-thumb"><span></span></div>
         </div>
@@ -911,6 +925,7 @@
     </div>
     <div class="tp-slider-wrap">
       <div class="tp-track">
+        <div class="tp-ticks"></div>
         <div class="tp-fill"></div>
         <div class="tp-thumb"><span></span></div>
       </div>
@@ -934,6 +949,7 @@
     </div>
     <div class="tp-slider-wrap">
       <div class="tp-track">
+        <div class="tp-ticks"></div>
         <div class="tp-fill"></div>
         <div class="tp-thumb"><span></span></div>
       </div>
@@ -984,9 +1000,16 @@ function tpCreate(id, onChange) {
     track: root.querySelector('.tp-track'),
     fill: root.querySelector('.tp-fill'),
     thumb: root.querySelector('.tp-thumb'),
+    ticks: root.querySelector('.tp-ticks'),
+    // Continuous drag position (0..1), separate from snapped value
+    dragPct: null,
   };
   TP_INSTANCES[id] = inst;
 
+  // Build tick marks (one per 30 min segment)
+  tpBuildTicks(inst);
+
+  // Cell clicks
   root.querySelectorAll('[data-seg="hour"] .tp-cell').forEach(c => {
     c.addEventListener('click', (e) => { e.preventDefault(); tpFocusSeg(inst, 'hour'); });
   });
@@ -995,13 +1018,26 @@ function tpCreate(id, onChange) {
   });
 
   inst.hidden.addEventListener('keydown', (e) => tpKeydown(inst, e));
-  inst.hidden.addEventListener('input', (e) => tpHandleInput(inst, e));
-  inst.hidden.addEventListener('blur', () => { setTimeout(() => tpBlurMaybe(inst), 80); });
-  inst.hidden.addEventListener('focus', () => tpScrollIntoView(root));
+  inst.hidden.addEventListener('input',   (e) => tpHandleInput(inst, e));
+  inst.hidden.addEventListener('blur',    ()  => { setTimeout(() => tpBlurMaybe(inst), 80); });
+  inst.hidden.addEventListener('focus',   ()  => tpScrollIntoView(root));
 
   tpAttachSlider(inst);
   tpRender(inst);
   return inst;
+}
+
+// Build tick marks for every 30-min interval
+function tpBuildTicks(inst) {
+  if (!inst.ticks) return;
+  const r = tpRangeFor(inst.kind);
+  const totalSteps = (r.max - r.min) * 2; // 30-min steps
+  for (let i = 1; i < totalSteps; i++) {
+    const tick = document.createElement('div');
+    tick.className = 'tp-tick';
+    tick.style.left = `${(i / totalSteps) * 100}%`;
+    inst.ticks.appendChild(tick);
+  }
 }
 
 function tpBlurMaybe(inst) {
@@ -1015,9 +1051,7 @@ function tpBlurMaybe(inst) {
 
 function tpScrollIntoView(el) {
   setTimeout(() => {
-    try {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } catch (_) {}
+    try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
   }, 250);
 }
 
@@ -1100,9 +1134,7 @@ function tpPredict(inst, digit) {
 function tpBackspace(inst) {
   if (inst.activeSeg === 'hour') {
     if (inst.hourBuf.length > 0) inst.hourBuf = '';
-    else {
-      inst.hourVal = -1;
-    }
+    else inst.hourVal = -1;
   } else if (inst.activeSeg === 'min') {
     if (inst.minBuf.length > 0) inst.minBuf = '';
     else if (inst.minVal >= 0) {
@@ -1118,6 +1150,7 @@ function tpBackspace(inst) {
 }
 
 function tpCommit(inst) {
+  inst.dragPct = null; // clear drag override
   if (inst.onChange) inst.onChange(tpGetTime(inst));
   tpUpdateSlider(inst);
   validatePickers();
@@ -1135,6 +1168,7 @@ function tpSetTime(inst, hhmm, opts = {}) {
   inst.minVal = m;
   inst.hourBuf = '';
   inst.minBuf = '';
+  inst.dragPct = null;
   tpRender(inst);
   tpUpdateSlider(inst);
   if (!opts.silent && inst.onChange) inst.onChange(tpGetTime(inst));
@@ -1146,8 +1180,7 @@ function tpRender(inst) {
 
   let h0 = '_', h1 = '_';
   if (inst.hourBuf.length > 0) {
-    h0 = inst.hourBuf;
-    h1 = '_';
+    h0 = inst.hourBuf; h1 = '_';
   } else if (inst.hourVal >= 0) {
     const s = String(inst.hourVal).padStart(2, '0');
     h0 = s[0]; h1 = s[1];
@@ -1159,8 +1192,7 @@ function tpRender(inst) {
 
   let m0 = '_', m1 = '_';
   if (inst.minBuf.length > 0) {
-    m0 = inst.minBuf;
-    m1 = '_';
+    m0 = inst.minBuf; m1 = '_';
   } else if (inst.minVal >= 0) {
     const s = String(inst.minVal).padStart(2, '0');
     m0 = s[0]; m1 = s[1];
@@ -1174,22 +1206,34 @@ function tpRender(inst) {
   inst.minGroup.classList.toggle('active', inst.activeSeg === 'min');
 }
 
+// Update slider visuals from current value (snapped)
 function tpUpdateSlider(inst) {
   if (inst.hourVal < 0 || inst.minVal < 0) return;
   const totalMin = inst.hourVal * 60 + inst.minVal;
   const r = tpRangeFor(inst.kind);
   const minM = r.min * 60, maxM = r.max * 60;
-  let pct;
-  if (totalMin <= minM) pct = 0;
-  else if (totalMin >= maxM) pct = 1;
-  else pct = (totalMin - minM) / (maxM - minM);
+  let pct = (totalMin - minM) / (maxM - minM);
+  pct = Math.max(0, Math.min(1, pct));
+  tpApplySliderVisual(inst, pct);
+}
 
-  inst.thumb.style.left = (pct * 100) + '%';
+// Apply slider visuals at arbitrary pct (no snap, no transition on thumb left)
+function tpApplySliderVisual(inst, pct) {
+  const pctStr = (pct * 100).toFixed(4) + '%';
+
   if (inst.kind === 'start') {
-    inst.fill.style.width = ((1 - pct) * 100) + '%';
+    // Start: fill from thumb to right edge (orange on right)
+    inst.fill.style.left  = pctStr;
+    inst.fill.style.right = '0';
+    inst.fill.style.width = '';
   } else {
-    inst.fill.style.width = (pct * 100) + '%';
+    // End: fill from left edge to thumb (orange on left)
+    inst.fill.style.left  = '0';
+    inst.fill.style.right = '';
+    inst.fill.style.width = pctStr;
   }
+
+  inst.thumb.style.left = pctStr;
 }
 
 function tpAttachSlider(inst) {
@@ -1201,56 +1245,62 @@ function tpAttachSlider(inst) {
     return Math.max(0, Math.min(1, x / rect.width));
   }
 
-  function applyPct(pct) {
-    // 1. Płynne przesuwanie wizualne
-    inst.thumb.style.left = (pct * 100) + '%';
-    if (inst.kind === 'start') {
-      inst.fill.style.width = ((1 - pct) * 100) + '%';
-    } else {
-      inst.fill.style.width = (pct * 100) + '%';
-    }
-
-    // 2. Progowana kalkulacja matematyczna (skok co 30 minut)
+  // Compute snapped value from continuous pct, update digits
+  function applyPctSnapped(pct) {
     const r = tpRangeFor(inst.kind);
-    const totalMin = r.min * 60 + pct * (r.max - r.min) * 60;
-    const snapped = Math.round(totalMin / 30) * 30;
+    const rawMin = r.min * 60 + pct * (r.max - r.min) * 60;
+    // Snap to 30-min steps for the value
+    const snapped = Math.round(rawMin / 30) * 30;
     let h = Math.floor(snapped / 60);
     let m = snapped % 60;
-    if (h === 24) { h = 23; m = 59; }
-
-    if (h !== inst.hourVal || m !== inst.minVal) {
-      inst.hourVal = h;
-      inst.minVal = m;
-      inst.hourBuf = '';
-      inst.minBuf = '';
-      tpRender(inst);
-      if (inst.onChange) inst.onChange(tpGetTime(inst));
-      validatePickers();
-    }
+    // Clamp
+    if (h > r.max || (h === r.max && m > 0)) { h = r.max; m = 0; }
+    if (h < r.min) { h = r.min; m = 0; }
+    inst.hourVal = h;
+    inst.minVal  = m;
+    inst.hourBuf = '';
+    inst.minBuf  = '';
+    tpRender(inst);
+    if (inst.onChange) inst.onChange(tpGetTime(inst));
+    validatePickers();
   }
 
   function onDown(e) {
     e.preventDefault();
     dragging = true;
-    inst.thumb.classList.add('dragging');
     inst.activeSeg = null;
     if (document.activeElement === inst.hidden) inst.hidden.blur();
     tpRender(inst);
-    applyPct(pctFromEvent(e));
+
+    // Press animation on thumb
+    inst.thumb.classList.add('pressed');
+
+    const pct = pctFromEvent(e);
+    inst.dragPct = pct;
+    // Move thumb smoothly to tap position immediately
+    tpApplySliderVisual(inst, pct);
+    // Snap value
+    applyPctSnapped(pct);
   }
-  
+
   function onMove(e) {
     if (!dragging) return;
     e.preventDefault();
-    applyPct(pctFromEvent(e));
+    const pct = pctFromEvent(e);
+    inst.dragPct = pct;
+    // Thumb moves continuously with finger
+    tpApplySliderVisual(inst, pct);
+    // Value snaps (digits update in 30-min steps)
+    applyPctSnapped(pct);
   }
-  
-  function onUp() { 
-    if (dragging) {
-      dragging = false;
-      inst.thumb.classList.remove('dragging');
-      tpUpdateSlider(inst); // Wyrównanie pozycji uchwytu do wybranego segmentu po puszczeniu
-    }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    inst.thumb.classList.remove('pressed');
+    // Snap thumb visually to the actual snapped value
+    inst.dragPct = null;
+    tpUpdateSlider(inst);
   }
 
   inst.track.addEventListener('mousedown', onDown);
@@ -1258,8 +1308,8 @@ function tpAttachSlider(inst) {
   document.addEventListener('mouseup', onUp);
 
   inst.track.addEventListener('touchstart', onDown, { passive: false });
-  document.addEventListener('touchmove', onMove, { passive: false });
-  document.addEventListener('touchend', onUp);
+  document.addEventListener('touchmove',  onMove,  { passive: false });
+  document.addEventListener('touchend',   onUp);
 }
 
 const PAIRS = {
@@ -1275,21 +1325,19 @@ function validatePickers() {
     if (!s || !e) continue;
     const sv = tpGetTime(s), ev = tpGetTime(e);
     const errEl = document.getElementById(p.errEl);
-    const btn = document.getElementById(p.saveBtn);
+    const btn   = document.getElementById(p.saveBtn);
     if (!sv || !ev) {
       errEl.classList.remove('show');
       btn.disabled = false;
       continue;
     }
-    const [sh, sm] = sv.split(':').map(Number);
-    const [eh, em] = ev.split(':').map(Number);
+    const [sh,sm] = sv.split(':').map(Number);
+    const [eh,em] = ev.split(':').map(Number);
     const sMin = sh*60+sm, eMin = eh*60+em;
     if (sMin >= eMin) {
       errEl.classList.add('show');
       btn.disabled = true;
-      if (k === 'main') {
-        document.getElementById('hoursWorked').textContent = '⚠';
-      }
+      if (k === 'main') document.getElementById('hoursWorked').textContent = '⚠';
     } else {
       errEl.classList.remove('show');
       btn.disabled = false;
@@ -1300,20 +1348,20 @@ function validatePickers() {
 // ================================================================
 //  rAF COUNTER
 // ================================================================
-let rafId          = null;
-let isRAFRunning   = false;
-let baseEUR        = 0;
-let eurPerMs       = 0;
-let rafStartTime   = 0;
+let rafId        = null;
+let isRAFRunning = false;
+let baseEUR      = 0;
+let eurPerMs     = 0;
+let rafStartTime = 0;
 
 function recalc() {
   stopRAF();
 
-  const now         = new Date();
-  const todayStr    = localDateStr(now);
+  const now          = new Date();
+  const todayStr     = localDateStr(now);
   const selectedYear = getMainYear();
-  let pastEUR       = 0;
-  let activePerMs   = 0;
+  let pastEUR        = 0;
+  let activePerMs    = 0;
 
   for (const [date, data] of Object.entries(workData)) {
     if (data.isDayOff) continue;
@@ -1359,23 +1407,23 @@ function tick(ts) {
   const totalH   = totalEUR / HOURLY_RATE;
 
   const strEUR = totalEUR.toFixed(4);
-  const dotIdxEUR = strEUR.indexOf('.');
-  document.getElementById('earningsEURMain').textContent = strEUR.substring(0, dotIdxEUR + 3);
-  document.getElementById('earningsEURSub').textContent = strEUR.substring(dotIdxEUR + 3);
+  const dotIdx = strEUR.indexOf('.');
+  document.getElementById('earningsEURMain').textContent = strEUR.substring(0, dotIdx + 3);
+  document.getElementById('earningsEURSub').textContent  = strEUR.substring(dotIdx + 3);
 
-  const strPLN = totalPLN.toFixed(4);
-  const dotIdxPLN = strPLN.indexOf('.');
-  document.getElementById('earningsPLNMain').textContent = strPLN.substring(0, dotIdxPLN + 3);
-  document.getElementById('earningsPLNSub').textContent = strPLN.substring(dotIdxPLN + 3);
+  const strPLN   = totalPLN.toFixed(4);
+  const dotIdxP  = strPLN.indexOf('.');
+  document.getElementById('earningsPLNMain').textContent = strPLN.substring(0, dotIdxP + 3);
+  document.getElementById('earningsPLNSub').textContent  = strPLN.substring(dotIdxP + 3);
 
-  document.getElementById('hoursWorked').textContent  = totalH.toFixed(2);
+  document.getElementById('hoursWorked').textContent = totalH.toFixed(2);
 
   rafId = requestAnimationFrame(tick);
 }
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) { stopRAF(); }
-  else if (activePage === 'mainPage') { recalc(); }
+  if (document.hidden) stopRAF();
+  else if (activePage === 'mainPage') recalc();
 });
 
 // ================================================================
@@ -1390,9 +1438,9 @@ window.addEventListener('load', () => {
   initCalendar();
 
   tpCreate('main-start', () => {});
-  tpCreate('main-end', () => {});
+  tpCreate('main-end',   () => {});
 
-  const todayStr = localDateStr(new Date());
+  const todayStr  = localDateStr(new Date());
   const todayData = workData[todayStr];
   if (todayData && !todayData.isDayOff) {
     tpSetTime(TP_INSTANCES['main-start'], todayData.startTime, { silent: true });
@@ -1405,7 +1453,7 @@ window.addEventListener('load', () => {
   validatePickers();
 
   tpCreate('sheet-start', () => {});
-  tpCreate('sheet-end', () => {});
+  tpCreate('sheet-end',   () => {});
 
   recalc();
   showPage('mainPage');
@@ -1449,14 +1497,12 @@ let activePage = 'mainPage';
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-
   activePage = id;
   document.getElementById(id).classList.add('active');
   document.getElementById(id.replace('Page','PageBtn')).classList.add('active');
   window.scrollTo(0, 0);
-
-  if (id === 'mainPage') { recalc(); }
-  else { stopRAF(); }
+  if (id === 'mainPage') recalc();
+  else stopRAF();
 }
 
 // ================================================================
@@ -1473,8 +1519,8 @@ function updateWorkTime() {
   const start = tpGetTime(s);
   const end   = tpGetTime(e);
   if (!start || !end) { toast('Uzupełnij godziny'); return; }
-  const [sh,sm]=start.split(':').map(Number);
-  const [eh,em]=end.split(':').map(Number);
+  const [sh,sm] = start.split(':').map(Number);
+  const [eh,em] = end.split(':').map(Number);
   if (sh*60+sm >= eh*60+em) { toast('Nieprawidłowy zakres'); return; }
   const date = localDateStr(new Date());
   workData[date] = { startTime: start, endTime: end };
@@ -1511,10 +1557,10 @@ function initCalendar() {
 }
 
 function renderCalendar() {
-  const el     = document.getElementById('calendar');
-  const month  = parseInt(document.getElementById('monthSelect').value, 10);
-  const year   = parseInt(document.getElementById('yearInput').value, 10);
-  const today  = localDateStr(new Date());
+  const el    = document.getElementById('calendar');
+  const month = parseInt(document.getElementById('monthSelect').value, 10);
+  const year  = parseInt(document.getElementById('yearInput').value, 10);
+  const today = localDateStr(new Date());
 
   el.innerHTML = '';
 
@@ -1527,7 +1573,7 @@ function renderCalendar() {
 
   const firstDay = new Date(year, month, 1);
   const lastDay  = new Date(year, month + 1, 0);
-  let   offset   = firstDay.getDay() - 1;
+  let offset     = firstDay.getDay() - 1;
   if (offset < 0) offset = 6;
 
   for (let i = 0; i < offset; i++) el.appendChild(document.createElement('div'));
@@ -1576,7 +1622,6 @@ function changeMonth(delta) {
   if (m < 0)  { m = 11; y--; }
   if (m > 11) { m = 0;  y++; }
   ms.value = m; yi.value = y;
-
   const cal = document.getElementById('calendar');
   cal.classList.add('fade');
   setTimeout(() => { renderCalendar(); cal.classList.remove('fade'); }, 200);
@@ -1615,16 +1660,15 @@ function openSheet(date) {
   const e = TP_INSTANCES['sheet-end'];
   if (data && !data.isDayOff) {
     tpSetTime(s, data.startTime, { silent: true });
-    tpSetTime(e, data.endTime, { silent: true });
+    tpSetTime(e, data.endTime,   { silent: true });
   } else {
     const prev = getPreviousSession();
     tpSetTime(s, prev.start, { silent: true });
-    tpSetTime(e, prev.end, { silent: true });
+    tpSetTime(e, prev.end,   { silent: true });
   }
   validatePickers();
 
   document.getElementById('sheetDelete').style.display = data ? 'flex' : 'none';
-
   document.getElementById('sheetOverlay').classList.add('open');
   document.getElementById('bottomSheet').classList.add('open');
 
@@ -1640,8 +1684,8 @@ function saveSheet() {
   const s = tpGetTime(TP_INSTANCES['sheet-start']);
   const e = tpGetTime(TP_INSTANCES['sheet-end']);
   if (!s || !e) { toast('Podaj obie godziny'); return; }
-  const [sh,sm]=s.split(':').map(Number);
-  const [eh,em]=e.split(':').map(Number);
+  const [sh,sm] = s.split(':').map(Number);
+  const [eh,em] = e.split(':').map(Number);
   if (sh*60+sm >= eh*60+em) { toast('Nieprawidłowy zakres'); return; }
   workData[sheetDate] = { startTime: s, endTime: e };
   persist(); recalc(); renderCalendar(); renderDayDetails(sheetDate);
@@ -1686,7 +1730,6 @@ function renderDayDetails(date) {
   if (e < s) e.setDate(e.getDate() + 1);
   const h   = (e - s) / 3600000;
   const eur = h * HOURLY_RATE;
-
   const dow = ['Nd','Pn','Wt','Śr','Cz','Pt','Sb'][new Date(date).getDay()];
 
   el.innerHTML = `<div class="card">
@@ -1702,13 +1745,13 @@ function renderDayDetails(date) {
 }
 
 function copyDay(date) {
-  const d   = workData[date];
+  const d = workData[date];
   if (!d || d.isDayOff) return;
   const dow = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'][new Date(date).getDay()];
   const s   = new Date(`${date}T${d.startTime}`);
   const e   = new Date(`${date}T${d.endTime}`);
   if (e < s) e.setDate(e.getDate() + 1);
-  const h   = (e - s) / 3600000;
+  const h = (e - s) / 3600000;
   navigator.clipboard.writeText(`${date} ${dow}: od ${d.startTime} do ${d.endTime} – ${Math.floor(h)} godz.`)
     .then(() => toast('Skopiowano!')).catch(() => toast('Błąd kopiowania'));
 }
@@ -1716,7 +1759,6 @@ function copyDay(date) {
 function updateSummary() {
   const period = document.getElementById('summaryPeriod').value;
   document.getElementById('customDateRange').style.display = period === 'custom' ? 'flex' : 'none';
-
   if (!period) return;
 
   const now = new Date();
@@ -1732,7 +1774,7 @@ function updateSummary() {
       end   = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       break;
     case 'week': {
-      const wd = new Date(now);
+      const wd  = new Date(now);
       const day = wd.getDay() || 7;
       wd.setDate(wd.getDate() - day + 1);
       start = new Date(wd);
@@ -1759,7 +1801,6 @@ function updateSummary() {
     totalH += (e - s) / 3600000;
   }
   const totalEUR = totalH * HOURLY_RATE;
-
   document.getElementById('totalHours').textContent       = `${totalH.toFixed(2)} h`;
   document.getElementById('totalEarnings').textContent    = `${totalEUR.toFixed(2)} €`;
   document.getElementById('totalEarningsPLN').textContent = `${(totalEUR * PLN_RATE).toFixed(2)} PLN`;
@@ -1818,10 +1859,10 @@ function loadTheme() {
 // ================================================================
 //  GOOGLE DRIVE
 // ================================================================
-let tokenClient       = null;
-let gdriveAuthorized  = false;
-let gdriveFileId      = null;
-let gdriveAutoTimer   = null;
+let tokenClient      = null;
+let gdriveAuthorized = false;
+let gdriveFileId     = null;
+let gdriveAutoTimer  = null;
 
 function initGIS() {
   if (typeof google === 'undefined' || !google.accounts) return;
@@ -1842,9 +1883,7 @@ function onGISToken(resp) {
 }
 
 function handleAuthClick() {
-  if (typeof google === 'undefined') {
-    toast('Załaduj GIS API – odkomentuj tag script'); return;
-  }
+  if (typeof google === 'undefined') { toast('Załaduj GIS API'); return; }
   if (!tokenClient) initGIS();
   tokenClient.requestAccessToken({ prompt: '' });
 }
@@ -1853,23 +1892,17 @@ async function backupToGDrive() {
   if (!gdriveAuthorized) { toast('Najpierw zaloguj się'); return; }
   setSyncStatus('syncing');
   try {
-    const token   = google.accounts.oauth2.revoke ? gapi?.client?.getToken()?.access_token : null;
+    const token   = gapi?.client?.getToken()?.access_token;
     const payload = JSON.stringify({ workData, savedAt: new Date().toISOString() });
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
     if (!gdriveFileId) gdriveFileId = await gdriveFindFile(token);
-
     if (gdriveFileId) {
-      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${gdriveFileId}?uploadType=media`, {
-        method: 'PATCH', headers, body: payload
-      });
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${gdriveFileId}?uploadType=media`, { method: 'PATCH', headers, body: payload });
     } else {
       const form = new FormData();
       form.append('metadata', new Blob([JSON.stringify({ name: GDRIVE_FILE, parents: ['appDataFolder'] })], { type: 'application/json' }));
-      form.append('file',     new Blob([payload], { type: 'application/json' }));
-      const res  = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form
-      });
+      form.append('file', new Blob([payload], { type: 'application/json' }));
+      const res  = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form });
       const json = await res.json();
       gdriveFileId = json.id;
     }
@@ -1880,12 +1913,10 @@ async function backupToGDrive() {
 async function restoreFromGDrive() {
   if (!gdriveAuthorized) { toast('Najpierw zaloguj się'); return; }
   try {
-    const token = gapi?.client?.getToken()?.access_token;
+    const token  = gapi?.client?.getToken()?.access_token;
     const fileId = await gdriveFindFile(token);
     if (!fileId) { toast('Brak pliku na Drive'); return; }
-    const res    = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res    = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers: { Authorization: `Bearer ${token}` } });
     const remote = await res.json();
     const local  = localStorage.getItem('lastSavedAt') || '0';
     if (remote.savedAt > local) {
@@ -1898,10 +1929,7 @@ async function restoreFromGDrive() {
 }
 
 async function gdriveFindFile(token) {
-  const res  = await fetch(
-    `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${GDRIVE_FILE}'&fields=files(id)`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const res  = await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${GDRIVE_FILE}'&fields=files(id)`, { headers: { Authorization: `Bearer ${token}` } });
   const json = await res.json();
   return json.files?.[0]?.id || null;
 }
@@ -1916,9 +1944,7 @@ function scheduleGDriveSync() {
 function setSyncStatus(state) {
   const el = document.getElementById('syncStatus');
   el.className = `sync-pill ${state}`;
-  el.innerHTML = `<span class="sync-dot"></span>${
-    { synced: 'Zsynchronizowano', syncing: 'Synchronizowanie...', offline: 'Tryb offline' }[state]
-  }`;
+  el.innerHTML = `<span class="sync-dot"></span>${{ synced: 'Zsynchronizowano', syncing: 'Synchronizowanie...', offline: 'Tryb offline' }[state]}`;
 }
 
 // ================================================================
@@ -1969,5 +1995,5 @@ function toast(msg) {
 }
 </script>
 </body>
-</html>
+  </html>
 
