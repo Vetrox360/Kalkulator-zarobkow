@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta id="theme-meta" name="theme-color" content="#ff1111">
+  <meta name="theme-color" id="theme-meta" content="#111111">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Kalkulator zarobków</title>
@@ -11,7 +11,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #ff1111;
+      --bg:        #111111;
       --surface:   #1a1a1a;
       --surface2:  #222222;
       --text:      #e8e8e8;
@@ -992,21 +992,29 @@ const GDRIVE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 const GDRIVE_SCOPES    = 'https://www.googleapis.com/auth/drive.appdata';
 const GDRIVE_FILE      = 'kalkulator_backup.json';
 
-// Zmienne do selekcji wielu dni
 let isSelectingCalendar = false;
 let selectedDates = new Set();
 let sheetDate = null; 
 
-// Zmienne do obsługi Long Press i Sekwencyjnego Zaznaczania Tekstowego
 let calendarTouchTimer = null;
 let isLongPressed = false;
 let selectionStartDateStr = null;
-let activePointerCell = null; // Zapamiętany element rozpoczęcia kliknięcia
+let activePointerCell = null;
 
-// Zmienne do obsługi gestu przeciągnięcia w dół (Swipe Down to Dismiss)
 let sheetDragStartY = 0;
 let sheetDragCurrentY = 0;
 let isDraggingSheet = false;
+
+// ================================================================
+//  THEME-COLOR HELPER
+// ================================================================
+function updateThemeColor() {
+  const isLight = document.body.classList.contains('light');
+  const metaTheme = document.getElementById('theme-meta');
+  if (metaTheme) {
+    metaTheme.setAttribute('content', isLight ? '#f0f0f5' : '#111111');
+  }
+}
 
 // ================================================================
 //  HAPTIC VIBRATION UTILITY
@@ -1748,7 +1756,6 @@ function setupCalendarSelection() {
   });
 
   cal.addEventListener('pointermove', (e) => {
-    // jeżeli ruszono palcem zanim odpalił long-press — anuluj timer
     if (calendarTouchTimer && !isSelectingCalendar) {
       const dx = Math.abs(e.clientX - pointerStartX);
       const dy = Math.abs(e.clientY - pointerStartY);
@@ -1778,8 +1785,7 @@ function setupCalendarSelection() {
       try { cal.releasePointerCapture(e.pointerId); } catch(_) {}
 
       const dates = Array.from(selectedDates);
-      suppressClick = true; // zignoruj zaraz potem wygenerowany click
-      // odroczenie — pozwala syntetycznemu click'owi wykonać się PRZED pojawieniem sheeta
+      suppressClick = true;
       setTimeout(() => {
         if (dates.length === 1) {
           openSheet(dates[0]);
@@ -1789,7 +1795,6 @@ function setupCalendarSelection() {
       }, 0);
       return;
     }
-    // zwykły tap obsłuży event 'click' poniżej
   });
 
   cal.addEventListener('pointercancel', () => {
@@ -1801,7 +1806,6 @@ function setupCalendarSelection() {
     selectedDates.clear();
   });
 
-  // Zwykły tap = natywny click. Dzięki temu unikamy kolizji z overlayem.
   cal.addEventListener('click', (e) => {
     if (suppressClick || isLongPressed) {
       suppressClick = false;
@@ -1815,7 +1819,6 @@ function setupCalendarSelection() {
 }
   
 
-// Logika sekwencyjna (zaznaczanie ciągłe od daty A do B, jak zaznaczanie tekstu)
 function updateSequentialSelection(dateStrA, dateStrB) {
   const dA = new Date(dateStrA);
   const dB = new Date(dateStrB);
@@ -1839,13 +1842,12 @@ function updateSequentialSelection(dateStrA, dateStrB) {
 }
 
 // ================================================================
-//  GEST SWIPE DOWN TO DISMISS (ZAMYKANIE PRZEZ PRZEWINIĘCIE W DÓŁ)
+//  GEST SWIPE DOWN TO DISMISS
 // ================================================================
 function setupSheetSwipeToDismiss() {
   const sheet = document.getElementById('bottomSheet');
   
   sheet.addEventListener('touchstart', (e) => {
-    // Reaguj tylko wtedy, gdy kontener jest przescrollowany na samą górę
     if (sheet.scrollTop <= 0) {
       sheetDragStartY = e.touches[0].clientY;
       isDraggingSheet = true;
@@ -1860,11 +1862,9 @@ function setupSheetSwipeToDismiss() {
     const deltaY = sheetDragCurrentY - sheetDragStartY;
     
     if (deltaY > 0) {
-      // Blokuj domyślny scroll, jeśli ciągniemy w dół od samej góry
       if (e.cancelable) e.preventDefault();
       sheet.style.transform = `translateY(${deltaY}px)`;
     } else {
-      // Jeśli użytkownik zacznie ciągnąć w górę, przywróć normalny stan
       sheet.style.transform = '';
       isDraggingSheet = false;
       sheet.classList.remove('dragging');
@@ -1879,7 +1879,6 @@ function setupSheetSwipeToDismiss() {
     const deltaY = sheetDragCurrentY - sheetDragStartY;
     sheet.style.transform = '';
 
-    // Jeśli przeciągnięto ponad 120px w dół, zamknij sheet
     if (deltaY > 120) {
       closeSheet();
     }
@@ -2147,48 +2146,22 @@ function persist() {
   scheduleGDriveSync();
 }
 
-// Przełączanie stylu motywu
-// Przełączanie stylu motywu
+// ================================================================
+//  THEME TOGGLE (POPRAWIONY)
+// ================================================================
 function toggleTheme() {
-  const body = document.body;
-  body.classList.toggle('light');
-  
-  const isLight = body.classList.contains('light');
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
   localStorage.setItem('lightMode', isLight);
-
-  // Dynamiczna i skuteczna zmiana koloru paska stanu
-  updateThemeMeta(isLight ? '#f0f0f5' : '#111111');
+  updateThemeColor();
 }
-
 
 function loadTheme() {
-  const isLight = localStorage.getItem('lightMode') === 'true';
-  if (isLight) {
+  if (localStorage.getItem('lightMode') === 'true') {
     document.body.classList.add('light');
-    updateThemeMeta('#f0f0f5');
-  } else {
-    updateThemeMeta('#111111');
   }
+  updateThemeColor();
 }
-
-  function updateThemeMeta(color) {
-  // Szukamy istniejącego tagu (zarówno po ID, jak i po nazwie)
-  let metaTheme = document.getElementById('theme-meta') || document.querySelector('meta[name="theme-color"]');
-  
-  if (metaTheme) {
-    metaTheme.remove(); // Usuwamy stary tag, aby wymusić odświeżenie w mobilnych przeglądarkach
-  }
-  
-  // Tworzymy zupełnie nowy element meta
-  metaTheme = document.createElement('meta');
-  metaTheme.id = 'theme-meta';
-  metaTheme.name = 'theme-color';
-  metaTheme.content = color;
-  
-  document.head.appendChild(metaTheme);
-}
-
-
 
 // ================================================================
 //  GOOGLE DRIVE
