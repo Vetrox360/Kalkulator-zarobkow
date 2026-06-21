@@ -755,7 +755,7 @@
       </div>
     </div>
 
-    <button class="btn btn-primary" id="mainSaveBtn" onclick="updateWorkTime()">Zapisz czas pracy</button>
+    <button class="btn btn-primary" id="mainSaveBtn" onclick="updateWorkTime(); window.scrollTo({ top: 0, behavior: 'smooth' });">Zapisz czas pracy</button>
     <button class="btn btn-ghost" onclick="resetToday()">Usuń dzisiejszy wpis</button>
   </div>
 </div>
@@ -2055,5 +2055,5 @@ function toast(msg) {
 }
 </script>
 </body>
-  </html>
+      </html>
 
