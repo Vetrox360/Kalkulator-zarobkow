@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta name="theme-color" id="theme-meta" content="#111111">
+  <meta id="theme-meta" name="theme-color" content="#111111">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Kalkulator zarobków</title>
@@ -16,7 +16,7 @@
       --surface2:  #222222;
       --text:      #e8e8e8;
       --muted:     #777;
-      --accent:    #fc4503;
+      --accent:    ##ffff00;
       --accent-lo: rgba(252,69,3,0.12);
       --accent-hi: #ff6228;
       --border:    rgba(255,255,255,0.07);
@@ -27,18 +27,6 @@
       --r-sm:      9px;
       --thumb-bg:  #3a3a3a;
       --thumb-ridge: rgba(255,255,255,0.35);
-    }
-
-    body::before {
-  content: '';
-  display: block;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-top);
-  background: var(--bg);
-  z-index: 9999;
     }
 
     body.light {
@@ -1018,7 +1006,7 @@ let sheetDragCurrentY = 0;
 let isDraggingSheet = false;
 
 // ================================================================
-//  THEME-COLOR HELPER
+//  THEME COLOR UTILITY
 // ================================================================
 function updateThemeColor() {
   const isLight = document.body.classList.contains('light');
@@ -2159,7 +2147,7 @@ function persist() {
 }
 
 // ================================================================
-//  THEME TOGGLE (POPRAWIONY)
+//  THEME TOGGLE — NAPRAWIONA WERSJA
 // ================================================================
 function toggleTheme() {
   document.body.classList.toggle('light');
