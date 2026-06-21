@@ -9,9 +9,6 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#fc4503">
   <style>
-    /* ============================================================
-       RESET & ROOT
-    ============================================================ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -26,8 +23,12 @@
       --border:    rgba(255,255,255,0.07);
       --success:   #22c55e;
       --warning:   #eab308;
+      --danger:    #ff3b30;
       --r:         14px;
       --r-sm:      9px;
+      --thumb-bg:  #3a3a3a;
+      --thumb-ridge: rgba(255,255,255,0.35);
+      --ticks-color: rgba(255, 255, 255, 0.08);
     }
 
     body.light {
@@ -37,6 +38,9 @@
       --text:     #111111;
       --muted:    #6e6e73;
       --border:   rgba(0,0,0,0.07);
+      --thumb-bg: #ffffff;
+      --thumb-ridge: rgba(0,0,0,0.35);
+      --ticks-color: rgba(0, 0, 0, 0.06);
     }
 
     html { height: 100%; background: var(--bg); }
@@ -52,13 +56,9 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Hide scrollbars */
     ::-webkit-scrollbar { display: none; }
     * { scrollbar-width: none; -ms-overflow-style: none; }
 
-    /* ============================================================
-       PAGE SYSTEM
-    ============================================================ */
     .page {
       display: none;
       min-height: 100dvh;
@@ -74,9 +74,6 @@
       to   { opacity: 1; transform: translateY(0);    }
     }
 
-    /* ============================================================
-       TYPOGRAPHY
-    ============================================================ */
     h1 {
       font-size: 24px;
       font-weight: 700;
@@ -92,9 +89,6 @@
       margin-bottom: 14px;
     }
 
-    /* ============================================================
-       CARD
-    ============================================================ */
     .card {
       background: var(--surface);
       border-radius: var(--r);
@@ -103,9 +97,6 @@
       border: 1px solid var(--border);
     }
 
-    /* ============================================================
-       INPUTS
-    ============================================================ */
     .field { margin-bottom: 14px; }
     .field:last-child { margin-bottom: 0; }
 
@@ -138,9 +129,6 @@
     input:focus, select:focus { border-color: var(--accent); }
     select option { background: var(--surface); }
 
-    /* ============================================================
-       BUTTONS
-    ============================================================ */
     .btn {
       display: flex;
       align-items: center;
@@ -159,6 +147,11 @@
       user-select: none;
     }
     .btn:active { transform: scale(0.96); opacity: 0.85; }
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
 
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-ghost   { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
@@ -167,7 +160,181 @@
     .btn + .btn { margin-top: 8px; }
 
     /* ============================================================
-       MAIN PAGE — EARNINGS (UPDATED DESIGN)
+       TIME PICKER COMPONENT (Bespoke)
+    ============================================================ */
+    .tp-block { margin-bottom: 20px; }
+    .tp-block:last-child { margin-bottom: 0; }
+
+    .tp-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .tp-matrix {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .tp-group {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border: 2px solid transparent;
+      border-radius: calc(var(--r-sm) + 4px);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .tp-group.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-lo);
+    }
+
+    .tp-cell {
+      width: 44px;
+      height: 56px;
+      background: var(--surface2);
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: background 0.15s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .tp-cell.placeholder { color: var(--muted); }
+    .tp-cell:active { background: var(--accent-lo); }
+
+    .tp-colon {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 0 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tp-hidden-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 1px;
+      height: 1px;
+      border: 0;
+      padding: 0;
+      font-size: 16px;
+    }
+
+    .tp-slider-wrap {
+      position: relative;
+      padding: 12px 0 4px;
+      margin: 0 6px;
+    }
+
+    .tp-track {
+      position: relative;
+      height: 44px;
+      background: var(--surface2);
+      background-image: repeating-linear-gradient(90deg, transparent, transparent calc(4.166% - 1px), var(--ticks-color) calc(4.166% - 1px), var(--ticks-color) 4.166%);
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      touch-action: none;
+      cursor: pointer;
+    }
+
+    .tp-fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: var(--accent);
+      pointer-events: none;
+    }
+
+    /* Dopasowanie kierunku wypełnienia pomarańczowego tła */
+    [data-kind="start"] .tp-fill {
+      left: auto;
+      right: 0;
+    }
+    [data-kind="end"] .tp-fill {
+      left: 0;
+      right: auto;
+    }
+
+    .tp-thumb {
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      width: 36px;
+      background: var(--thumb-bg);
+      border-radius: 10px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+      cursor: grab;
+      touch-action: none;
+      z-index: 2;
+      transition: transform 0.15s ease;
+    }
+    .tp-thumb:active, .tp-thumb.dragging {
+      cursor: grabbing;
+      transform: translateX(-50%) scale(0.92);
+    }
+    .tp-thumb::before,
+    .tp-thumb::after,
+    .tp-thumb > span {
+      content: '';
+      display: block;
+      width: 2px;
+      height: 22px;
+      background: var(--thumb-ridge);
+      border-radius: 1px;
+    }
+    .tp-thumb > span { background: var(--thumb-ridge); }
+
+    .tp-axis {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding: 0 4px;
+    }
+    .tp-axis span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.5px;
+    }
+
+    .tp-error {
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 12px;
+      padding: 8px;
+      background: rgba(255,59,48,0.08);
+      border-radius: var(--r-sm);
+      display: none;
+    }
+    .tp-error.show { display: block; }
+
+    /* ============================================================
+       EARNINGS
     ============================================================ */
     .earnings-card {
       padding: 26px 20px 20px;
@@ -221,9 +388,7 @@
       margin-left: 4px;
     }
 
-    .earnings-pln {
-      margin-bottom: 18px;
-    }
+    .earnings-pln { margin-bottom: 18px; }
 
     .hours-pill {
       display: inline-flex;
@@ -267,9 +432,6 @@
       padding: 8px 4px;
     }
 
-    /* ============================================================
-       CALENDAR
-    ============================================================ */
     .month-picker {
       display: flex;
       align-items: center;
@@ -341,9 +503,6 @@
     }
     .cal-badge.off { background: #444; color: #aaa; }
 
-    /* ============================================================
-       DAY DETAIL
-    ============================================================ */
     #dayDetails { margin-bottom: 14px; display: none; }
     #dayDetails h2 { color: var(--text); font-size: 15px; text-transform: none; letter-spacing: 0; }
 
@@ -362,9 +521,6 @@
     .day-actions { display: flex; gap: 8px; margin-top: 14px; }
     .day-actions .btn { flex: 1; margin: 0; font-size: 14px; }
 
-    /* ============================================================
-       SUMMARY
-    ============================================================ */
     .sum-row {
       display: flex; justify-content: space-between; align-items: center;
       padding: 11px 0; font-size: 14px;
@@ -372,14 +528,12 @@
     }
     .sum-row:last-child { border-bottom: none; }
     .sum-row .val { font-weight: 700; color: var(--accent); }
+    .sum-row .val.error { color: var(--danger); font-size: 12px; text-align: right; }
     .sum-row .key { color: var(--muted); }
 
     #customDateRange { display: flex; gap: 12px; }
     #customDateRange .field { flex: 1; }
 
-    /* ============================================================
-       BOTTOM SHEET
-    ============================================================ */
     .overlay {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.55);
@@ -402,6 +556,8 @@
       transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
       box-shadow: 0 -12px 48px rgba(0,0,0,0.5);
       border-top: 1px solid var(--border);
+      max-height: 92dvh;
+      overflow-y: auto;
     }
     .sheet.open { transform: translateY(0); }
 
@@ -417,12 +573,6 @@
       color: var(--text);
     }
 
-    .time-pair { display: flex; gap: 12px; margin-bottom: 14px; }
-    .time-pair .field { flex: 1; margin: 0; }
-
-    /* ============================================================
-       BOTTOM NAV
-    ============================================================ */
     .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -463,9 +613,6 @@
     }
     .nav-btn span { font-size: 10px; font-weight: 600; }
 
-    /* ============================================================
-       SETTINGS
-    ============================================================ */
     .settings-block { margin-bottom: 14px; }
 
     .sync-row {
@@ -492,9 +639,6 @@
     #installSection { display: none; }
     #installSection.show { display: block; }
 
-    /* ============================================================
-       TOAST
-    ============================================================ */
     #toast {
       position: fixed;
       bottom: calc(80px + env(safe-area-inset-bottom) + 12px);
@@ -512,9 +656,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* ============================================================
-       UTILITY
-    ============================================================ */
     .divider { height: 1px; background: var(--border); margin: 14px 0; }
   </style>
 </head>
@@ -534,7 +675,6 @@
       <span id="earningsPLNMain">0.00</span><span id="earningsPLNSub" class="small-decimal">00</span><span class="earnings-pln-symbol">PLN</span>
     </div>
 
-    
     <div class="hours-pill">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -549,17 +689,57 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="mainTodayCard">
     <h2>Dzisiaj</h2>
-    <div class="field">
-      <label for="startTime">Rozpoczęcie</label>
-      <input type="time" id="startTime">
+    <div class="tp-error" id="mainError">Godzina zakończenia musi być późniejsza niż rozpoczęcia!</div>
+
+    <div class="tp-block" data-tp="main-start" data-kind="start">
+      <span class="tp-label">Rozpoczęcie</span>
+      <div class="tp-matrix">
+        <div class="tp-group" data-seg="hour">
+          <div class="tp-cell" data-pos="0">_</div>
+          <div class="tp-cell" data-pos="1">_</div>
+        </div>
+        <span class="tp-colon">:</span>
+        <div class="tp-group" data-seg="min">
+          <div class="tp-cell" data-pos="0">_</div>
+          <div class="tp-cell" data-pos="1">_</div>
+        </div>
+        <input type="tel" inputmode="numeric" class="tp-hidden-input" maxlength="1" autocomplete="off">
+      </div>
+      <div class="tp-slider-wrap">
+        <div class="tp-track">
+          <div class="tp-fill"></div>
+          <div class="tp-thumb"><span></span></div>
+        </div>
+        <div class="tp-axis"><span>00:00</span><span>06:00</span><span>12:00</span></div>
+      </div>
     </div>
-    <div class="field">
-      <label for="endTime">Zakończenie</label>
-      <input type="time" id="endTime">
+
+    <div class="tp-block" data-tp="main-end" data-kind="end">
+      <span class="tp-label">Zakończenie</span>
+      <div class="tp-matrix">
+        <div class="tp-group" data-seg="hour">
+          <div class="tp-cell" data-pos="0">_</div>
+          <div class="tp-cell" data-pos="1">_</div>
+        </div>
+        <span class="tp-colon">:</span>
+        <div class="tp-group" data-seg="min">
+          <div class="tp-cell" data-pos="0">_</div>
+          <div class="tp-cell" data-pos="1">_</div>
+        </div>
+        <input type="tel" inputmode="numeric" class="tp-hidden-input" maxlength="1" autocomplete="off">
+      </div>
+      <div class="tp-slider-wrap">
+        <div class="tp-track">
+          <div class="tp-fill"></div>
+          <div class="tp-thumb"><span></span></div>
+        </div>
+        <div class="tp-axis"><span>12:00</span><span>18:00</span><span>24:00</span></div>
+      </div>
     </div>
-    <button class="btn btn-primary" onclick="updateWorkTime()">Zapisz czas pracy</button>
+
+    <button class="btn btn-primary" id="mainSaveBtn" onclick="updateWorkTime()">Zapisz czas pracy</button>
     <button class="btn btn-ghost" onclick="resetToday()">Usuń dzisiejszy wpis</button>
   </div>
 </div>
@@ -712,17 +892,56 @@
 <div class="sheet" id="bottomSheet">
   <div class="sheet-handle"></div>
   <div class="sheet-date" id="sheetDate">—</div>
-  <div class="time-pair">
-    <div class="field">
-      <label for="sheetStart">Rozpoczęcie</label>
-      <input type="time" id="sheetStart">
+
+  <div class="tp-error" id="sheetError">Godzina zakończenia musi być późniejsza niż rozpoczęcia!</div>
+
+  <div class="tp-block" data-tp="sheet-start" data-kind="start">
+    <span class="tp-label">Rozpoczęcie</span>
+    <div class="tp-matrix">
+      <div class="tp-group" data-seg="hour">
+        <div class="tp-cell" data-pos="0">_</div>
+        <div class="tp-cell" data-pos="1">_</div>
+      </div>
+      <span class="tp-colon">:</span>
+      <div class="tp-group" data-seg="min">
+        <div class="tp-cell" data-pos="0">_</div>
+        <div class="tp-cell" data-pos="1">_</div>
+      </div>
+      <input type="tel" inputmode="numeric" class="tp-hidden-input" maxlength="1" autocomplete="off">
     </div>
-    <div class="field">
-      <label for="sheetEnd">Zakończenie</label>
-      <input type="time" id="sheetEnd">
+    <div class="tp-slider-wrap">
+      <div class="tp-track">
+        <div class="tp-fill"></div>
+        <div class="tp-thumb"><span></span></div>
+      </div>
+      <div class="tp-axis"><span>00:00</span><span>06:00</span><span>12:00</span></div>
     </div>
   </div>
-  <button class="btn btn-primary" onclick="saveSheet()">Zapisz</button>
+
+  <div class="tp-block" data-tp="sheet-end" data-kind="end">
+    <span class="tp-label">Zakończenie</span>
+    <div class="tp-matrix">
+      <div class="tp-group" data-seg="hour">
+        <div class="tp-cell" data-pos="0">_</div>
+        <div class="tp-cell" data-pos="1">_</div>
+      </div>
+      <span class="tp-colon">:</span>
+      <div class="tp-group" data-seg="min">
+        <div class="tp-cell" data-pos="0">_</div>
+        <div class="tp-cell" data-pos="1">_</div>
+      </div>
+      <input type="tel" inputmode="numeric" class="tp-hidden-input" maxlength="1" autocomplete="off">
+    </div>
+    <div class="tp-slider-wrap">
+      <div class="tp-track">
+        <div class="tp-fill"></div>
+        <div class="tp-thumb"><span></span></div>
+      </div>
+      <div class="tp-axis"><span>12:00</span><span>18:00</span><span>24:00</span></div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="sheetSaveBtn" onclick="saveSheet()">Zapisz</button>
   <button class="btn btn-ghost" onclick="setDayOff()">Oznacz jako wolny</button>
   <button class="btn btn-danger" id="sheetDelete" onclick="deleteEntry()">Usuń wpis</button>
 </div>
@@ -741,7 +960,345 @@ const GDRIVE_SCOPES    = 'https://www.googleapis.com/auth/drive.appdata';
 const GDRIVE_FILE      = 'kalkulator_backup.json';
 
 // ================================================================
-//  rAF COUNTER  (Event-Driven Architecture)
+//  TIME PICKER COMPONENT
+// ================================================================
+const TP_INSTANCES = {};
+
+function tpRangeFor(kind) {
+  return kind === 'start' ? { min: 0, max: 12 } : { min: 12, max: 24 };
+}
+
+function tpCreate(id, onChange) {
+  const root = document.querySelector(`[data-tp="${id}"]`);
+  if (!root) return null;
+  const kind = root.dataset.kind;
+  const inst = {
+    id, kind, root, onChange,
+    hourBuf: '', minBuf: '',
+    hourVal: kind === 'start' ? 5 : 20,
+    minVal: 30,
+    activeSeg: null,
+    hidden: root.querySelector('.tp-hidden-input'),
+    hourGroup: root.querySelector('[data-seg="hour"]'),
+    minGroup: root.querySelector('[data-seg="min"]'),
+    track: root.querySelector('.tp-track'),
+    fill: root.querySelector('.tp-fill'),
+    thumb: root.querySelector('.tp-thumb'),
+  };
+  TP_INSTANCES[id] = inst;
+
+  root.querySelectorAll('[data-seg="hour"] .tp-cell').forEach(c => {
+    c.addEventListener('click', (e) => { e.preventDefault(); tpFocusSeg(inst, 'hour'); });
+  });
+  root.querySelectorAll('[data-seg="min"] .tp-cell').forEach(c => {
+    c.addEventListener('click', (e) => { e.preventDefault(); tpFocusSeg(inst, 'min'); });
+  });
+
+  inst.hidden.addEventListener('keydown', (e) => tpKeydown(inst, e));
+  inst.hidden.addEventListener('input', (e) => tpHandleInput(inst, e));
+  inst.hidden.addEventListener('blur', () => { setTimeout(() => tpBlurMaybe(inst), 80); });
+  inst.hidden.addEventListener('focus', () => tpScrollIntoView(root));
+
+  tpAttachSlider(inst);
+  tpRender(inst);
+  return inst;
+}
+
+function tpBlurMaybe(inst) {
+  if (document.activeElement !== inst.hidden) {
+    inst.activeSeg = null;
+    inst.hourBuf = '';
+    inst.minBuf = '';
+    tpRender(inst);
+  }
+}
+
+function tpScrollIntoView(el) {
+  setTimeout(() => {
+    try {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (_) {}
+  }, 250);
+}
+
+function tpFocusSeg(inst, seg) {
+  inst.activeSeg = seg;
+  if (seg === 'hour') inst.hourBuf = '';
+  else inst.minBuf = '';
+  inst.hidden.value = '';
+  inst.hidden.focus();
+  tpRender(inst);
+}
+
+function tpKeydown(inst, e) {
+  if (e.key === 'Backspace') {
+    e.preventDefault();
+    tpBackspace(inst);
+  } else if (e.key === 'Tab' || e.key === 'Enter') {
+    // allow
+  } else if (e.key.length === 1 && !/[0-9]/.test(e.key)) {
+    e.preventDefault();
+  }
+}
+
+function tpHandleInput(inst, e) {
+  const ch = (inst.hidden.value || '').slice(-1);
+  inst.hidden.value = '';
+  if (!ch || !/[0-9]/.test(ch)) return;
+  tpPredict(inst, ch);
+}
+
+function tpPredict(inst, digit) {
+  const d = parseInt(digit, 10);
+  if (inst.activeSeg === 'hour') {
+    if (inst.hourBuf.length === 0) {
+      if (d <= 2) {
+        inst.hourBuf = String(d);
+      } else {
+        inst.hourVal = d;
+        inst.hourBuf = '';
+        inst.activeSeg = 'min';
+        inst.minBuf = '';
+        tpCommit(inst);
+      }
+    } else {
+      const candidate = parseInt(inst.hourBuf + d, 10);
+      if (candidate <= 23) {
+        inst.hourVal = candidate;
+        inst.hourBuf = '';
+        inst.activeSeg = 'min';
+        inst.minBuf = '';
+        tpCommit(inst);
+      } else {
+        inst.hourVal = parseInt(inst.hourBuf, 10);
+        inst.hourBuf = '';
+        inst.activeSeg = 'min';
+        inst.minBuf = '';
+        tpCommit(inst);
+        tpPredict(inst, digit);
+        return;
+      }
+    }
+  } else if (inst.activeSeg === 'min') {
+    if (inst.minBuf.length === 0) {
+      if (d <= 5) {
+        inst.minBuf = String(d);
+      } else {
+        inst.minVal = d;
+        inst.minBuf = '';
+        tpCommit(inst);
+      }
+    } else {
+      inst.minVal = parseInt(inst.minBuf + d, 10);
+      inst.minBuf = '';
+      tpCommit(inst);
+    }
+  }
+  tpRender(inst);
+}
+
+function tpBackspace(inst) {
+  if (inst.activeSeg === 'hour') {
+    if (inst.hourBuf.length > 0) inst.hourBuf = '';
+    else {
+      inst.hourVal = -1;
+    }
+  } else if (inst.activeSeg === 'min') {
+    if (inst.minBuf.length > 0) inst.minBuf = '';
+    else if (inst.minVal >= 0) {
+      inst.minVal = -1;
+    } else {
+      inst.activeSeg = 'hour';
+      inst.hourBuf = '';
+      inst.hourVal = -1;
+    }
+  }
+  tpRender(inst);
+  if (inst.hourVal >= 0 && inst.minVal >= 0) tpCommit(inst);
+}
+
+function tpCommit(inst) {
+  if (inst.onChange) inst.onChange(tpGetTime(inst));
+  tpUpdateSlider(inst);
+  validatePickers();
+}
+
+function tpGetTime(inst) {
+  if (inst.hourVal < 0 || inst.minVal < 0) return null;
+  return `${String(inst.hourVal).padStart(2,'0')}:${String(inst.minVal).padStart(2,'0')}`;
+}
+
+function tpSetTime(inst, hhmm, opts = {}) {
+  if (!hhmm || !/^\d{1,2}:\d{2}$/.test(hhmm)) return;
+  const [h, m] = hhmm.split(':').map(Number);
+  inst.hourVal = h;
+  inst.minVal = m;
+  inst.hourBuf = '';
+  inst.minBuf = '';
+  tpRender(inst);
+  tpUpdateSlider(inst);
+  if (!opts.silent && inst.onChange) inst.onChange(tpGetTime(inst));
+}
+
+function tpRender(inst) {
+  const hCells = inst.hourGroup.querySelectorAll('.tp-cell');
+  const mCells = inst.minGroup.querySelectorAll('.tp-cell');
+
+  let h0 = '_', h1 = '_';
+  if (inst.hourBuf.length > 0) {
+    h0 = inst.hourBuf;
+    h1 = '_';
+  } else if (inst.hourVal >= 0) {
+    const s = String(inst.hourVal).padStart(2, '0');
+    h0 = s[0]; h1 = s[1];
+  }
+  hCells[0].textContent = h0;
+  hCells[1].textContent = h1;
+  hCells[0].classList.toggle('placeholder', h0 === '_');
+  hCells[1].classList.toggle('placeholder', h1 === '_');
+
+  let m0 = '_', m1 = '_';
+  if (inst.minBuf.length > 0) {
+    m0 = inst.minBuf;
+    m1 = '_';
+  } else if (inst.minVal >= 0) {
+    const s = String(inst.minVal).padStart(2, '0');
+    m0 = s[0]; m1 = s[1];
+  }
+  mCells[0].textContent = m0;
+  mCells[1].textContent = m1;
+  mCells[0].classList.toggle('placeholder', m0 === '_');
+  mCells[1].classList.toggle('placeholder', m1 === '_');
+
+  inst.hourGroup.classList.toggle('active', inst.activeSeg === 'hour');
+  inst.minGroup.classList.toggle('active', inst.activeSeg === 'min');
+}
+
+function tpUpdateSlider(inst) {
+  if (inst.hourVal < 0 || inst.minVal < 0) return;
+  const totalMin = inst.hourVal * 60 + inst.minVal;
+  const r = tpRangeFor(inst.kind);
+  const minM = r.min * 60, maxM = r.max * 60;
+  let pct;
+  if (totalMin <= minM) pct = 0;
+  else if (totalMin >= maxM) pct = 1;
+  else pct = (totalMin - minM) / (maxM - minM);
+
+  inst.thumb.style.left = (pct * 100) + '%';
+  if (inst.kind === 'start') {
+    inst.fill.style.width = ((1 - pct) * 100) + '%';
+  } else {
+    inst.fill.style.width = (pct * 100) + '%';
+  }
+}
+
+function tpAttachSlider(inst) {
+  let dragging = false;
+
+  function pctFromEvent(e) {
+    const rect = inst.track.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    return Math.max(0, Math.min(1, x / rect.width));
+  }
+
+  function applyPct(pct) {
+    // 1. Płynne przesuwanie wizualne
+    inst.thumb.style.left = (pct * 100) + '%';
+    if (inst.kind === 'start') {
+      inst.fill.style.width = ((1 - pct) * 100) + '%';
+    } else {
+      inst.fill.style.width = (pct * 100) + '%';
+    }
+
+    // 2. Progowana kalkulacja matematyczna (skok co 30 minut)
+    const r = tpRangeFor(inst.kind);
+    const totalMin = r.min * 60 + pct * (r.max - r.min) * 60;
+    const snapped = Math.round(totalMin / 30) * 30;
+    let h = Math.floor(snapped / 60);
+    let m = snapped % 60;
+    if (h === 24) { h = 23; m = 59; }
+
+    if (h !== inst.hourVal || m !== inst.minVal) {
+      inst.hourVal = h;
+      inst.minVal = m;
+      inst.hourBuf = '';
+      inst.minBuf = '';
+      tpRender(inst);
+      if (inst.onChange) inst.onChange(tpGetTime(inst));
+      validatePickers();
+    }
+  }
+
+  function onDown(e) {
+    e.preventDefault();
+    dragging = true;
+    inst.thumb.classList.add('dragging');
+    inst.activeSeg = null;
+    if (document.activeElement === inst.hidden) inst.hidden.blur();
+    tpRender(inst);
+    applyPct(pctFromEvent(e));
+  }
+  
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    applyPct(pctFromEvent(e));
+  }
+  
+  function onUp() { 
+    if (dragging) {
+      dragging = false;
+      inst.thumb.classList.remove('dragging');
+      tpUpdateSlider(inst); // Wyrównanie pozycji uchwytu do wybranego segmentu po puszczeniu
+    }
+  }
+
+  inst.track.addEventListener('mousedown', onDown);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+
+  inst.track.addEventListener('touchstart', onDown, { passive: false });
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('touchend', onUp);
+}
+
+const PAIRS = {
+  main:  { start: 'main-start',  end: 'main-end',  errEl: 'mainError',  saveBtn: 'mainSaveBtn'  },
+  sheet: { start: 'sheet-start', end: 'sheet-end', errEl: 'sheetError', saveBtn: 'sheetSaveBtn' },
+};
+
+function validatePickers() {
+  for (const k of Object.keys(PAIRS)) {
+    const p = PAIRS[k];
+    const s = TP_INSTANCES[p.start];
+    const e = TP_INSTANCES[p.end];
+    if (!s || !e) continue;
+    const sv = tpGetTime(s), ev = tpGetTime(e);
+    const errEl = document.getElementById(p.errEl);
+    const btn = document.getElementById(p.saveBtn);
+    if (!sv || !ev) {
+      errEl.classList.remove('show');
+      btn.disabled = false;
+      continue;
+    }
+    const [sh, sm] = sv.split(':').map(Number);
+    const [eh, em] = ev.split(':').map(Number);
+    const sMin = sh*60+sm, eMin = eh*60+em;
+    if (sMin >= eMin) {
+      errEl.classList.add('show');
+      btn.disabled = true;
+      if (k === 'main') {
+        document.getElementById('hoursWorked').textContent = '⚠';
+      }
+    } else {
+      errEl.classList.remove('show');
+      btn.disabled = false;
+    }
+  }
+}
+
+// ================================================================
+//  rAF COUNTER
 // ================================================================
 let rafId          = null;
 let isRAFRunning   = false;
@@ -801,24 +1358,20 @@ function tick(ts) {
   const totalPLN = totalEUR * PLN_RATE;
   const totalH   = totalEUR / HOURLY_RATE;
 
-  // 1. Formatowanie i podział EUR (4 cyfry po przecinku)
   const strEUR = totalEUR.toFixed(4);
   const dotIdxEUR = strEUR.indexOf('.');
   document.getElementById('earningsEURMain').textContent = strEUR.substring(0, dotIdxEUR + 3);
   document.getElementById('earningsEURSub').textContent = strEUR.substring(dotIdxEUR + 3);
 
-  // 2. Formatowanie i podział PLN (4 cyfry po przecinku)
   const strPLN = totalPLN.toFixed(4);
   const dotIdxPLN = strPLN.indexOf('.');
   document.getElementById('earningsPLNMain').textContent = strPLN.substring(0, dotIdxPLN + 3);
   document.getElementById('earningsPLNSub').textContent = strPLN.substring(dotIdxPLN + 3);
 
-  // 3. Aktualizacja godzin
   document.getElementById('hoursWorked').textContent  = totalH.toFixed(2);
 
   rafId = requestAnimationFrame(tick);
 }
-
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { stopRAF(); }
@@ -835,9 +1388,37 @@ window.addEventListener('load', () => {
   const now = new Date();
   document.getElementById('mainYearInput').value = now.getFullYear();
   initCalendar();
+
+  tpCreate('main-start', () => {});
+  tpCreate('main-end', () => {});
+
+  const todayStr = localDateStr(new Date());
+  const todayData = workData[todayStr];
+  if (todayData && !todayData.isDayOff) {
+    tpSetTime(TP_INSTANCES['main-start'], todayData.startTime, { silent: true });
+    tpSetTime(TP_INSTANCES['main-end'],   todayData.endTime,   { silent: true });
+  } else {
+    const prev = getPreviousSession();
+    tpSetTime(TP_INSTANCES['main-start'], prev.start, { silent: true });
+    tpSetTime(TP_INSTANCES['main-end'],   prev.end,   { silent: true });
+  }
+  validatePickers();
+
+  tpCreate('sheet-start', () => {});
+  tpCreate('sheet-end', () => {});
+
   recalc();
   showPage('mainPage');
 });
+
+function getPreviousSession() {
+  const dates = Object.keys(workData)
+    .filter(d => workData[d] && !workData[d].isDayOff && workData[d].startTime && workData[d].endTime)
+    .sort();
+  if (dates.length === 0) return { start: '05:30', end: '20:30' };
+  const last = workData[dates[dates.length - 1]];
+  return { start: last.startTime, end: last.endTime };
+}
 
 // ================================================================
 //  RATES
@@ -887,9 +1468,14 @@ function getMainYear() {
 }
 
 function updateWorkTime() {
-  const start = document.getElementById('startTime').value;
-  const end   = document.getElementById('endTime').value;
+  const s = TP_INSTANCES['main-start'];
+  const e = TP_INSTANCES['main-end'];
+  const start = tpGetTime(s);
+  const end   = tpGetTime(e);
   if (!start || !end) { toast('Uzupełnij godziny'); return; }
+  const [sh,sm]=start.split(':').map(Number);
+  const [eh,em]=end.split(':').map(Number);
+  if (sh*60+sm >= eh*60+em) { toast('Nieprawidłowy zakres'); return; }
   const date = localDateStr(new Date());
   workData[date] = { startTime: start, endTime: end };
   persist();
@@ -903,8 +1489,10 @@ function resetToday() {
   if (!workData[date]) { toast('Brak wpisu dzisiaj'); return; }
   if (!confirm('Usunąć dzisiejszy wpis?')) return;
   delete workData[date];
-  document.getElementById('startTime').value = '';
-  document.getElementById('endTime').value   = '';
+  const prev = getPreviousSession();
+  tpSetTime(TP_INSTANCES['main-start'], prev.start, { silent: true });
+  tpSetTime(TP_INSTANCES['main-end'],   prev.end,   { silent: true });
+  validatePickers();
   persist();
   recalc();
   renderCalendar();
@@ -1023,8 +1611,18 @@ function openSheet(date) {
   if (cell) cell.classList.add('sel');
 
   const data = workData[date];
-  document.getElementById('sheetStart').value  = data?.isDayOff ? '' : (data?.startTime || '');
-  document.getElementById('sheetEnd').value    = data?.isDayOff ? '' : (data?.endTime   || '');
+  const s = TP_INSTANCES['sheet-start'];
+  const e = TP_INSTANCES['sheet-end'];
+  if (data && !data.isDayOff) {
+    tpSetTime(s, data.startTime, { silent: true });
+    tpSetTime(e, data.endTime, { silent: true });
+  } else {
+    const prev = getPreviousSession();
+    tpSetTime(s, prev.start, { silent: true });
+    tpSetTime(e, prev.end, { silent: true });
+  }
+  validatePickers();
+
   document.getElementById('sheetDelete').style.display = data ? 'flex' : 'none';
 
   document.getElementById('sheetOverlay').classList.add('open');
@@ -1038,11 +1636,13 @@ function closeSheet() {
   document.getElementById('bottomSheet').classList.remove('open');
 }
 
-// (Inne funkcje logiki pozostają bez zmian)
 function saveSheet() {
-  const s = document.getElementById('sheetStart').value;
-  const e = document.getElementById('sheetEnd').value;
+  const s = tpGetTime(TP_INSTANCES['sheet-start']);
+  const e = tpGetTime(TP_INSTANCES['sheet-end']);
   if (!s || !e) { toast('Podaj obie godziny'); return; }
+  const [sh,sm]=s.split(':').map(Number);
+  const [eh,em]=e.split(':').map(Number);
+  if (sh*60+sm >= eh*60+em) { toast('Nieprawidłowy zakres'); return; }
   workData[sheetDate] = { startTime: s, endTime: e };
   persist(); recalc(); renderCalendar(); renderDayDetails(sheetDate);
   closeSheet(); toast('Zapisano!');
@@ -1370,3 +1970,4 @@ function toast(msg) {
 </script>
 </body>
 </html>
+
