@@ -2148,6 +2148,7 @@ function persist() {
 }
 
 // Przełączanie stylu motywu
+// Przełączanie stylu motywu
 function toggleTheme() {
   const body = document.body;
   body.classList.toggle('light');
@@ -2155,24 +2156,38 @@ function toggleTheme() {
   const isLight = body.classList.contains('light');
   localStorage.setItem('lightMode', isLight);
 
-  // Dynamiczna zmiana koloru paska stanu
-  const metaTheme = document.getElementById('theme-meta');
-  if (metaTheme) {
-    metaTheme.setAttribute('content', isLight ? '#f0f0f5' : '#111111');
-  }
+  // Dynamiczna i skuteczna zmiana koloru paska stanu
+  updateThemeMeta(isLight ? '#f0f0f5' : '#111111');
 }
+
 
 function loadTheme() {
   const isLight = localStorage.getItem('lightMode') === 'true';
   if (isLight) {
     document.body.classList.add('light');
-    // Aktualizacja paska stanu przy starcie aplikacji, jeśli zapisany był motyw jasny
-    const metaTheme = document.getElementById('theme-meta');
-    if (metaTheme) {
-      metaTheme.setAttribute('content', '#f0f0f5');
-    }
+    updateThemeMeta('#f0f0f5');
+  } else {
+    updateThemeMeta('#111111');
   }
 }
+
+  function updateThemeMeta(color) {
+  // Szukamy istniejącego tagu (zarówno po ID, jak i po nazwie)
+  let metaTheme = document.getElementById('theme-meta') || document.querySelector('meta[name="theme-color"]');
+  
+  if (metaTheme) {
+    metaTheme.remove(); // Usuwamy stary tag, aby wymusić odświeżenie w mobilnych przeglądarkach
+  }
+  
+  // Tworzymy zupełnie nowy element meta
+  metaTheme = document.createElement('meta');
+  metaTheme.id = 'theme-meta';
+  metaTheme.name = 'theme-color';
+  metaTheme.content = color;
+  
+  document.head.appendChild(metaTheme);
+}
+
 
 
 // ================================================================
