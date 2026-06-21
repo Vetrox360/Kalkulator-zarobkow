@@ -29,17 +29,17 @@
       --thumb-ridge: rgba(255,255,255,0.35);
     }
 
-    html {
-  height: 100%;
+    body::before {
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
   background: var(--bg);
-  border: none;
-  outline: none;
-}
-
-body {
-  border: none;
-  outline: none;
-}
+  z-index: 9999;
+    }
 
     body.light {
       --bg:       #f0f0f5;
