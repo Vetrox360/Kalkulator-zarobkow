@@ -539,6 +539,8 @@
       border: 1.5px solid transparent;
       transition: transform 0.1s ease, background 0.15s;
       position: relative;
+      border: solid 1px var(--border);
+      
     }
     .cal-day:active { transform: scale(0.9); background: var(--surface2); }
     .cal-day.sun { color: var(--accent); }
@@ -546,7 +548,7 @@
     .cal-day.sel { border-color: var(--accent); }
     .cal-day.multi-sel {
       background: var(--accent-lo);
-      border-color: var(--accent);
+      border: solid 2px var(--accent);
       color: var(--accent);
     }
 
