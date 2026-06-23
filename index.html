@@ -4,6 +4,9 @@
   <meta name="theme-color" content="#111111" id="theme-meta">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
   <title>Kalkulator zarobków</title>
   <link rel="icon" type="image/png" href="Logo.png">
   <link rel="manifest" href="manifest.json">
@@ -40,6 +43,14 @@
       --thumb-bg: #ffffff;
       --thumb-ridge: rgba(0,0,0,0.35);
     }
+    
+    html, body {
+      overscroll-behavior-y: none;
+    }
+
+    .sheet {
+      overscroll-behavior-y: contain;
+    }
 
     html { height: 100%; background: var(--bg); }
 
@@ -49,6 +60,7 @@
       color: var(--text);
       min-height: 100%;
       overflow-x: hidden;
+      overscroll-behavior-y: contain;
       -webkit-text-size-adjust: 100%;
       -webkit-tap-highlight-color: transparent;
       -webkit-overflow-scrolling: touch;
@@ -168,6 +180,53 @@
     }
     input:focus, select:focus { border-color: var(--accent); }
     select option { background: var(--surface); }
+    
+    .sheet-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 15px;
+      align-items: center;
+    }
+
+    .sheet-actions .btn {
+      flex: 1 !important;
+      height: 48px !important;
+      padding: 12px 8px;
+      border: none;
+      border-radius: var(--r-sm, 9px);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #ffffff;
+      transition: opacity 0.2s ease, transform 0.1s ease;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 !important;
+    }
+
+    .sheet-actions .btn-action:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+
+    .sheet-actions .btn-danger {
+      background-color: var(--surface2) !important;
+      border: 1px solid var(--border, rgba(255,255,255,0.07)) !important;
+      color: var(--danger) !important;
+    }
+
+    .sheet-actions .btn-ghost {
+      background-color: var(--surface2, #222222);
+      border: 1px solid var(--border, rgba(255,255,255,0.07)) !important;
+      color: var(--text, #e8e8e8);
+    }
+
+    .sheet-actions .btn-primary {
+      background-color: var(--accent, #fc4503);
+    }
 
     .btn {
       display: flex;
@@ -691,8 +750,8 @@
       z-index: 100;
       opacity: 0; pointer-events: none;
       transition: opacity 0.3s ease;
-      -webkit-backdrop-filter: blur(3px);
-      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(2px);
+      backdrop-filter: blur(2px);
     }
     .overlay.open { opacity: 1; pointer-events: all; }
 
@@ -711,6 +770,7 @@
       border: 1px solid var(--border);
       max-height: calc(92dvh - var(--page-margin) * 2);
       overflow-y: auto;
+      overscroll-behavior-y: contain;
       touch-action: auto;
     }
     .sheet.open { transform: translateY(0); transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -1133,220 +1193,258 @@
       color: var(--muted);
       font-style: italic;
     }
+
+    /* ============================================================
+       EFEKT PRZESTRZENNY DLA TŁA POD BOTTOM SHEET
+    ============================================================ */
+    #appContainer {
+      width: 100%;
+      min-height: 100dvh;
+      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), 
+                  opacity 0.6s ease, 
+                  border-radius 0.6s ease;
+      transform-origin: bottom 20%;
+      will-change: transform, border-radius;
+    }
+
+    /* Stan, gdy bottomSheet jest otwarty */
+    #appContainer.scaled-back {
+      transform: scale(0.96);
+      opacity: 1;
+      border-radius: 24px;
+      overflow: hidden;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
 
-<div id="mainPage" class="page active">
-  <h1>Zarobki</h1>
-  <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Podaj godzinę rozpoczęcia oraz zakończenia pracy i na żywo obserwuj wzrastający licznik zarobków.</p>
+<!-- ============================================================
+     APP CONTAINER — zawiera wszystkie strony i dolną nawigację
+     (elementy poza nim: overlay, sheet, toast — nie są skalowane)
+============================================================ -->
+<div id="appContainer">
 
-  <!-- Card 1: Earnings -->
-  <div class="card earnings-card stagger-card" data-stagger="0">
-    <div class="earnings-eyebrow" id="earningsYearLabel">Rok 2025</div>
-    
-    <div class="earnings-eur">
-      <span id="earningsEURMain">0.00</span><span id="earningsEURSub" class="small-decimal">00</span><span class="earnings-eur-symbol">€</span>
-    </div>
-    
-    <div class="earnings-pln">
-      <span id="earningsPLNMain">0.00</span><span id="earningsPLNSub" class="small-decimal">00</span><span class="earnings-pln-symbol">PLN</span>
+  <div id="mainPage" class="page active">
+    <h1>Zarobki</h1>
+    <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Podaj godzinę rozpoczęcia oraz zakończenia pracy i na żywo obserwuj wzrastający licznik zarobków.</p>
+
+    <!-- Card 1: Earnings -->
+    <div class="card earnings-card stagger-card" data-stagger="0">
+      <div class="earnings-eyebrow" id="earningsYearLabel">Rok 2025</div>
+      
+      <div class="earnings-eur">
+        <span id="earningsEURMain">0.00</span><span id="earningsEURSub" class="small-decimal">00</span><span class="earnings-eur-symbol">€</span>
+      </div>
+      
+      <div class="earnings-pln">
+        <span id="earningsPLNMain">0.00</span><span id="earningsPLNSub" class="small-decimal">00</span><span class="earnings-pln-symbol">PLN</span>
+      </div>
+
+      <div class="hours-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span id="hoursWorked">0.00</span> h
+      </div>
+      <div class="year-row">
+        <button class="yr-btn" id="mainYearDown">&#9660;</button>
+        <input type="number" id="mainYearInput" value="2025" min="2000" max="2100">
+        <button class="yr-btn" id="mainYearUp">&#9650;</button>
+      </div>
     </div>
 
-    <div class="hours-pill">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-      </svg>
-      <span id="hoursWorked">0.00</span> h
+    <!-- Card 2: Today Live -->
+    <div class="card today-live-card stagger-card" id="todayLiveCard" data-stagger="1">
+      <div class="today-live-header">
+        <span class="today-live-title">Dzisiaj</span>
+        <span class="today-live-status idle" id="todayLiveStatus">
+          <span class="status-dot"></span>
+          <span id="todayLiveStatusText">Brak wpisu</span>
+        </span>
+      </div>
+      <div id="todayLiveContent">
+        <div class="today-no-entry">Ustaw godziny pracy poniżej, aby zobaczyć postęp dnia.</div>
+      </div>
     </div>
-    <div class="year-row">
-      <button class="yr-btn" id="mainYearDown">&#9660;</button>
-      <input type="number" id="mainYearInput" value="2025" min="2000" max="2100">
-      <button class="yr-btn" id="mainYearUp">&#9650;</button>
+
+    <!-- Card 3: Set Time Button -->
+    <div class="card stagger-card" data-stagger="2">
+      <button class="btn btn-ghost" onclick="openTodaySheet()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Ustaw czas pracy
+      </button>
     </div>
   </div>
 
-  <!-- Card 2: Today Live -->
-  <div class="card today-live-card stagger-card" id="todayLiveCard" data-stagger="1">
-    <div class="today-live-header">
-      <span class="today-live-title">Dzisiaj</span>
-      <span class="today-live-status idle" id="todayLiveStatus">
-        <span class="status-dot"></span>
-        <span id="todayLiveStatusText">Brak wpisu</span>
-      </span>
+  <div id="calendarPage" class="page">
+    <h1>Kalendarz</h1>
+    <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Dotknij dnia, aby go edytować, lub przytrzymaj i przesuń, aby zaznaczyć zakres dni.</p>
+
+    <!-- Card 1: Month Picker -->
+    <div class="stagger-card" data-stagger="0">
+      <div class="month-picker">
+        <button class="mon-arrow" id="prevMonth">&#9650;</button>
+        <select id="monthSelect">
+          <option value="0">Styczeń</option><option value="1">Luty</option>
+          <option value="2">Marzec</option><option value="3">Kwiecień</option>
+          <option value="4">Maj</option><option value="5">Czerwiec</option>
+          <option value="6">Lipiec</option><option value="7">Sierpień</option>
+          <option value="8">Wrzesień</option><option value="9">Październik</option>
+          <option value="10">Listopad</option><option value="11">Grudzień</option>
+        </select>
+        <input type="number" id="yearInput" value="2025" min="2000" max="2100">
+        <button class="mon-arrow" id="nextMonth">&#9660;</button>
+      </div>
     </div>
-    <div id="todayLiveContent">
-      <div class="today-no-entry">Ustaw godziny pracy poniżej, aby zobaczyć postęp dnia.</div>
+
+    <!-- Card 2: Calendar grid -->
+    <div class="stagger-card" data-stagger="1">
+      <div id="calendar"></div>
+    </div>
+
+    <!-- Card 3: Recent Entries -->
+    <div class="card stagger-card" id="recentEntriesCard" data-stagger="2">
+      <h2>Ostatnie wpisy</h2>
+      <div id="recentEntriesList"></div>
     </div>
   </div>
 
-  <!-- Card 3: Set Time Button -->
-  <div class="card stagger-card" data-stagger="2">
-    <button class="btn btn-ghost" onclick="openTodaySheet()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+  <!-- STATS PAGE -->
+  <div id="statsPage" class="page">
+    <h1>Statystyki</h1>
+    <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Szczegółowe podsumowanie Twojej pracy i zarobków na przestrzeni czasu.</p>
+
+    <!-- Card 1: Stat Grid -->
+    <div class="stagger-card" data-stagger="0">
+      <div class="stats-grid" id="statsGrid"></div>
+    </div>
+
+    <!-- Card 2: Year Comparison -->
+    <div class="card stagger-card" data-stagger="1">
+      <h2>Zarobki rok do roku</h2>
+      <div id="yoyTableWrap"></div>
+    </div>
+  </div>
+
+  <div id="settingsPage" class="page">
+    <h1>Ustawienia</h1>
+    <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Modyfikuj stawki godzinowe i kurs przewalutowania, dostosuj motyw lub eksportuj i importuj dane.</p>
+
+    <!-- Card 1: Rates -->
+    <div class="card settings-block stagger-card" data-stagger="0">
+      <div class="field">
+        <label for="hourlyRateInput">Stawka godzinowa (EUR)</label>
+        <input type="number" id="hourlyRateInput" step="0.01" min="0" placeholder="np. 11.17">
+      </div>
+      <div class="field">
+        <label for="plnRateInput">Kurs EUR → PLN</label>
+        <input type="number" id="plnRateInput" step="0.01" min="0" placeholder="np. 4.30">
+      </div>
+      <button class="btn btn-primary" onclick="saveRates()">Zapisz stawki</button>
+    </div>
+
+    <!-- Card 2: Appearance -->
+    <div class="card settings-block stagger-card" data-stagger="1">
+      <h2>Wygląd</h2>
+      <button class="btn btn-ghost" onclick="toggleTheme()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        Przełącz jasny / ciemny
+      </button>
+    </div>
+
+    <!-- Card 3: Backup -->
+    <div class="card settings-block stagger-card" data-stagger="2">
+      <h2>Kopie zapasowe</h2>
+      <button class="btn btn-ghost" onclick="backupData()">Eksportuj dane (JSON)</button>
+      <button class="btn btn-ghost" onclick="restoreData()">Importuj dane (JSON)</button>
+      <input type="file" id="restoreFile" accept=".json" style="display:none;" onchange="handleFileUpload(event)">
+    </div>
+
+    <!-- Card 4: Drive -->
+    <div class="card settings-block stagger-card" data-stagger="3">
+      <h2>Google Drive</h2>
+      <div class="sync-row">
+        <span id="syncStatus" class="sync-pill offline">
+          <span class="sync-dot"></span>Tryb offline
+        </span>
+      </div>
+      <button class="btn btn-ghost" id="authButton" onclick="handleAuthClick()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10z"/>
+          <path d="M12 8v8M8 12h8"/>
+        </svg>
+        Połącz z Google Drive
+      </button>
+      <button class="btn btn-ghost" id="gdriveBackupBtn" style="display:none;" onclick="backupToGDrive()">Wyślij kopię na Drive</button>
+      <button class="btn btn-ghost" id="gdriveRestoreBtn" style="display:none;" onclick="restoreFromGDrive()">Przywróć z Drive</button>
+    </div>
+
+    <!-- Card 5: Install -->
+    <div class="card settings-block stagger-card" id="installSection" data-stagger="4">
+      <h2>Instalacja</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Zainstaluj aplikację na ekranie głównym dla szybkiego dostępu.</p>
+      <button class="btn btn-primary" onclick="triggerInstall()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Zainstaluj aplikację
+      </button>
+    </div>
+  </div>
+
+  <!-- Dolna nawigacja WEWNĄTRZ appContainer — skaluje się razem z resztą -->
+
+
+</div><!-- /#appContainer -->
+
+<!-- ============================================================
+     ELEMENTY POZA appContainer — nie są skalowane
+============================================================ -->
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="mainPageBtn" onclick="showPage('mainPage')">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z"/>
+        <polyline points="9 21 9 12 15 12 15 21"/>
       </svg>
-      Ustaw czas pracy
+      <span>Główna</span>
     </button>
-  </div>
-</div>
-
-<div id="calendarPage" class="page">
-  <h1>Kalendarz</h1>
-  <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Dotknij dnia, aby go edytować, lub przytrzymaj i przesuń, aby zaznaczyć zakres dni.</p>
-
-  <!-- Card 1: Month Picker -->
-  <div class="stagger-card" data-stagger="0">
-    <div class="month-picker">
-      <button class="mon-arrow" id="prevMonth">&#9650;</button>
-      <select id="monthSelect">
-        <option value="0">Styczeń</option><option value="1">Luty</option>
-        <option value="2">Marzec</option><option value="3">Kwiecień</option>
-        <option value="4">Maj</option><option value="5">Czerwiec</option>
-        <option value="6">Lipiec</option><option value="7">Sierpień</option>
-        <option value="8">Wrzesień</option><option value="9">Październik</option>
-        <option value="10">Listopad</option><option value="11">Grudzień</option>
-      </select>
-      <input type="number" id="yearInput" value="2025" min="2000" max="2100">
-      <button class="mon-arrow" id="nextMonth">&#9660;</button>
-    </div>
-  </div>
-
-  <!-- Card 2: Calendar grid -->
-  <div class="stagger-card" data-stagger="1">
-    <div id="calendar"></div>
-  </div>
-
-  <!-- Card 3: Recent Entries -->
-  <div class="card stagger-card" id="recentEntriesCard" data-stagger="2">
-    <h2>Ostatnie wpisy</h2>
-    <div id="recentEntriesList"></div>
-  </div>
-</div>
-
-<!-- STATS PAGE -->
-<div id="statsPage" class="page">
-  <h1>Statystyki</h1>
-  <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Szczegółowe podsumowanie Twojej pracy i zarobków na przestrzeni czasu.</p>
-
-  <!-- Card 1: Stat Grid -->
-  <div class="stagger-card" data-stagger="0">
-    <div class="stats-grid" id="statsGrid"></div>
-  </div>
-
-  <!-- Card 2: Year Comparison -->
-  <div class="card stagger-card" data-stagger="1">
-    <h2>Zarobki rok do roku</h2>
-    <div id="yoyTableWrap"></div>
-  </div>
-</div>
-
-<div id="settingsPage" class="page">
-  <h1>Ustawienia</h1>
-  <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Modyfikuj stawki godzinowe i kurs przewalutowania, dostosuj motyw lub eksportuj i importuj dane.</p>
-
-  <!-- Card 1: Rates -->
-  <div class="card settings-block stagger-card" data-stagger="0">
-    <div class="field">
-      <label for="hourlyRateInput">Stawka godzinowa (EUR)</label>
-      <input type="number" id="hourlyRateInput" step="0.01" min="0" placeholder="np. 11.17">
-    </div>
-    <div class="field">
-      <label for="plnRateInput">Kurs EUR → PLN</label>
-      <input type="number" id="plnRateInput" step="0.01" min="0" placeholder="np. 4.30">
-    </div>
-    <button class="btn btn-primary" onclick="saveRates()">Zapisz stawki</button>
-  </div>
-
-  <!-- Card 2: Appearance -->
-  <div class="card settings-block stagger-card" data-stagger="1">
-    <h2>Wygląd</h2>
-    <button class="btn btn-ghost" onclick="toggleTheme()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
-        <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
-        <line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    <button class="nav-btn" id="calendarPageBtn" onclick="showPage('calendarPage')">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
-      Przełącz jasny / ciemny
+      <span>Kalendarz</span>
     </button>
-  </div>
-
-  <!-- Card 3: Backup -->
-  <div class="card settings-block stagger-card" data-stagger="2">
-    <h2>Kopie zapasowe</h2>
-    <button class="btn btn-ghost" onclick="backupData()">Eksportuj dane (JSON)</button>
-    <button class="btn btn-ghost" onclick="restoreData()">Importuj dane (JSON)</button>
-    <input type="file" id="restoreFile" accept=".json" style="display:none;" onchange="handleFileUpload(event)">
-  </div>
-
-  <!-- Card 4: Drive -->
-  <div class="card settings-block stagger-card" data-stagger="3">
-    <h2>Google Drive</h2>
-    <div class="sync-row">
-      <span id="syncStatus" class="sync-pill offline">
-        <span class="sync-dot"></span>Tryb offline
-      </span>
-    </div>
-    <button class="btn btn-ghost" id="authButton" onclick="handleAuthClick()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10z"/>
-        <path d="M12 8v8M8 12h8"/>
+    <button class="nav-btn" id="statsPageBtn" onclick="showPage('statsPage')">
+      <svg viewBox="0 0 24 24">
+        <path d="M18 20V10M12 20V4M6 20v-6"/>
       </svg>
-      Połącz z Google Drive
+      <span>Statystyki</span>
     </button>
-    <button class="btn btn-ghost" id="gdriveBackupBtn" style="display:none;" onclick="backupToGDrive()">Wyślij kopię na Drive</button>
-    <button class="btn btn-ghost" id="gdriveRestoreBtn" style="display:none;" onclick="restoreFromGDrive()">Przywróć z Drive</button>
-  </div>
-
-  <!-- Card 5: Install -->
-  <div class="card settings-block stagger-card" id="installSection" data-stagger="4">
-    <h2>Instalacja</h2>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Zainstaluj aplikację na ekranie głównym dla szybkiego dostępu.</p>
-    <button class="btn btn-primary" onclick="triggerInstall()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+    <button class="nav-btn" id="settingsPageBtn" onclick="showPage('settingsPage')">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
       </svg>
-      Zainstaluj aplikację
+      <span>Ustawienia</span>
     </button>
-  </div>
-</div>
-
-<nav class="bottom-nav">
-  <button class="nav-btn active" id="mainPageBtn" onclick="showPage('mainPage')">
-    <svg viewBox="0 0 24 24">
-      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z"/>
-      <polyline points="9 21 9 12 15 12 15 21"/>
-    </svg>
-    <span>Główna</span>
-  </button>
-  <button class="nav-btn" id="calendarPageBtn" onclick="showPage('calendarPage')">
-    <svg viewBox="0 0 24 24">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-      <line x1="16" y1="2" x2="16" y2="6"/>
-      <line x1="8" y1="2" x2="8" y2="6"/>
-      <line x1="3" y1="10" x2="21" y2="10"/>
-    </svg>
-    <span>Kalendarz</span>
-  </button>
-  <button class="nav-btn" id="statsPageBtn" onclick="showPage('statsPage')">
-    <svg viewBox="0 0 24 24">
-      <path d="M18 20V10M12 20V4M6 20v-6"/>
-    </svg>
-    <span>Statystyki</span>
-  </button>
-  <button class="nav-btn" id="settingsPageBtn" onclick="showPage('settingsPage')">
-    <svg viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-    </svg>
-    <span>Ustawienia</span>
-  </button>
-</nav>
+  </nav>
 
 <div class="overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+
 <div class="sheet" id="bottomSheet">
   <div class="sheet-handle"></div>
   <div class="sheet-date" id="sheetDate">—</div>
@@ -1400,9 +1498,11 @@
     </div>
   </div>
 
-  <button class="btn btn-primary" id="sheetSaveBtn" onclick="saveSheet()">Zapisz</button>
-  <button class="btn btn-ghost" id="sheetDayOffBtn" onclick="setDayOff()">Oznacz jako wolny</button>
-  <button class="btn btn-danger" id="sheetDelete" onclick="deleteEntry()">Usuń wpis</button>
+  <div class="sheet-actions">
+    <button class="btn btn-danger" id="sheetDelete" onclick="deleteEntry()">Usuń</button>
+    <button class="btn btn-ghost" id="sheetDayOffBtn" onclick="setDayOff()">Wolny</button>
+    <button class="btn btn-primary" id="sheetSaveBtn" onclick="saveSheet()">Zapisz</button>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -1411,6 +1511,23 @@
 // ================================================================
 //  STATE
 // ================================================================
+let preventRefresh = false;
+
+document.addEventListener('touchmove', (e) => {
+  if (preventRefresh && e.cancelable) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+document.addEventListener('touchstart', (e) => {
+  const sheet = document.getElementById('bottomSheet');
+  if (sheet && sheet.classList.contains('open')) {
+    preventRefresh = true;
+  } else {
+    preventRefresh = false;
+  }
+});
+
 let workData   = {};
 let HOURLY_RATE = 11.17;
 let PLN_RATE    = 4.30;
@@ -2089,7 +2206,6 @@ function updateTodayLiveValues() {
 // ================================================================
 //  STATS COUNT-UP ANIMATION
 // ================================================================
-
 function easeOutCubic(t) {
   return 1 - Math.pow(1 - t, 3);
 }
@@ -2099,7 +2215,6 @@ function animateStatValue(el, targetText, duration) {
     if (!el) { resolve(); return; }
 
     const text = targetText.trim();
-
     const numMatch = text.match(/([^\d.-]*)(-?[\d,]+(?:\.\d+)?)([^\d]*)/);
     if (!numMatch) {
       el.textContent = targetText;
@@ -2132,11 +2247,9 @@ function animateStatValue(el, targetText, duration) {
         requestAnimationFrame(frame);
       } else {
         el.textContent = prefix + targetNum.toFixed(decimals) + suffix;
-
         el.classList.remove('bounce');
         void el.offsetWidth;
         el.classList.add('bounce');
-
         resolve();
       }
     }
@@ -2148,7 +2261,6 @@ function animateStatValue(el, targetText, duration) {
 
 function animateStatsCountUp() {
   const DURATION = 600;
-
   const statValues = document.querySelectorAll('#statsPage .stat-card-value');
   statValues.forEach((el) => {
     const finalText = el.textContent.trim();
@@ -2234,7 +2346,6 @@ function renderStats() {
       <div class="stat-card-label">Najdłuższy dzień</div>
       <div class="stat-card-sub">${longestDay.date}</div>
     </div>
-      </div>
     <div class="stat-card wide stat-card-hidden">
       <div class="stat-card-icon">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2412,12 +2523,8 @@ function showPage(id) {
 
   if (id === 'statsPage') {
     renderStats();
-    setTimeout(() => {
-      animateStatsCards();
-    }, 10);
-    setTimeout(() => {
-      animateStatsCountUp();
-    }, 25);
+    setTimeout(() => { animateStatsCards(); }, 10);
+    setTimeout(() => { animateStatsCountUp(); }, 25);
   }
 
   if (id === 'calendarPage') renderRecentEntries();
@@ -2665,76 +2772,93 @@ function updateSequentialSelection(dateStrA, dateStrB) {
 // ================================================================
 //  SHEET SWIPE TO DISMISS
 // ================================================================
-
 function setupSheetSwipeToDismiss() {
   const sheet = document.getElementById('bottomSheet');
-  
-  // Dodatkowe zmienne pomocnicze do śledzenia punktu startowego X oraz weryfikacji kierunku
-  let sheetDragStartX = 0; 
+  const overlay = document.getElementById('sheetOverlay');
+
+  let sheetDragStartX = 0;
   let sheetGestureChecked = false;
+  let sheetTouchActive = false;
+
+  overlay.addEventListener('touchmove', (e) => {
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
 
   sheet.addEventListener('touchstart', (e) => {
-    if (sheet.scrollTop <= 0) {
-      sheetDragStartY = e.touches[0].clientY;
-      sheetDragStartX = e.touches[0].clientX; // Zapamiętujemy startowy X
-      isDraggingSheet = false;                // Nie aktywujemy draggingu od razu
-      sheetGestureChecked = false;            // Resetujemy flagę sprawdzania gestu
-      sheet.classList.add('dragging');
-    }
+    sheetTouchActive = true;
+    sheetGestureChecked = false;
+    isDraggingSheet = false;
+    sheetDragCurrentY = 0;
+
+    sheetDragStartY = e.touches[0].clientY;
+    sheetDragStartX = e.touches[0].clientX;
   }, { passive: true });
 
   sheet.addEventListener('touchmove', (e) => {
-    if (sheet.scrollTop > 0) return;
-    
+    if (!sheetTouchActive) return;
+
     sheetDragCurrentY = e.touches[0].clientY;
     const currentX = e.touches[0].clientX;
-    
+
     const deltaY = sheetDragCurrentY - sheetDragStartY;
     const deltaX = Math.abs(currentX - sheetDragStartX);
 
-    // KROK 1: Sprawdzenie intencji użytkownika (tylko raz na początku ruchu)
+    const atTop = sheet.scrollTop <= 0;
+
     if (!sheetGestureChecked) {
-      // Wprowadzamy minimalny próg przesunięcia (np. 10px), aby upewnić się, że to intencjonalny ruch
       if (Math.abs(deltaY) > 10 || deltaX > 10) {
         sheetGestureChecked = true;
-        // Aktywujemy przeciąganie tylko, jeśli ruch w dół jest wyraźnie większy niż ruch w bok
-        if (deltaY > 0 && deltaY > deltaX * 1.5) { 
+        if (atTop && deltaY > 0 && deltaY > deltaX * 1.5) {
           isDraggingSheet = true;
+          sheet.classList.add('dragging');
         }
       }
     }
 
-    // KROK 2: Obsługa faktycznego przeciągania
-    if (isDraggingSheet && deltaY > 0) {
-      if (e.cancelable) e.preventDefault();
-      sheet.style.transform = `translateY(${deltaY}px)`;
-    } else if (!isDraggingSheet && !sheetGestureChecked) {
-      // Jeśli gest nie jest jeszcze zweryfikowany, blokujemy transformację
-      sheet.style.transform = '';
-    }
-  }, { passive: false });
-
-  sheet.addEventListener('touchend', (e) => {
-    sheet.classList.remove('dragging');
-    if (!isDraggingSheet) {
-      sheet.style.transform = '';
+    if (isDraggingSheet) {
+      if (deltaY > 0) {
+        if (e.cancelable) e.preventDefault();
+        sheet.style.transform = `translateY(${deltaY}px)`;
+      } else {
+        sheet.style.transform = '';
+      }
       return;
     }
-    isDraggingSheet = false;
-    
-    const deltaY = sheetDragCurrentY - sheetDragStartY;
+
     sheet.style.transform = '';
-    
-    // Zwiększyliśmy próg puszczenia ze 120 na 150px, by trudniej było przypadkowo zamknąć okno
-    if (deltaY > 150) { 
+  }, { passive: false });
+
+  sheet.addEventListener('touchend', () => {
+    sheet.classList.remove('dragging');
+
+    if (!isDraggingSheet) {
+      sheet.style.transform = '';
+      sheetTouchActive = false;
+      return;
+    }
+
+    const deltaY = sheetDragCurrentY - sheetDragStartY;
+
+    isDraggingSheet = false;
+    sheetTouchActive = false;
+    sheet.style.transform = '';
+
+    if (deltaY > 150) {
       closeSheet();
     }
   });
+
+  sheet.addEventListener('touchcancel', () => {
+    isDraggingSheet = false;
+    sheetTouchActive = false;
+    sheetGestureChecked = false;
+    sheet.classList.remove('dragging');
+    sheet.style.transform = '';
+  });
 }
 
-
 // ================================================================
-//  BOTTOM SHEET
+//  BOTTOM SHEET — z efektem przestrzennym na #appContainer
 // ================================================================
 function openSheet(date) {
   selectedDates.clear();
@@ -2742,8 +2866,8 @@ function openSheet(date) {
   sheetDate = date;
   
   document.getElementById('sheetDate').textContent = date;
-  document.getElementById('sheetDelete').textContent = 'Usuń wpis';
-  document.getElementById('sheetDayOffBtn').textContent = 'Oznacz jako wolny';
+  document.getElementById('sheetDelete').textContent = 'Usuń';
+  document.getElementById('sheetDayOffBtn').textContent = 'Wolny';
   document.getElementById('sheetSaveBtn').textContent = 'Zapisz';
 
   const data = workData[date];
@@ -2759,17 +2883,20 @@ function openSheet(date) {
   }
   validatePickers();
 
-  document.getElementById('sheetDelete').style.display = data ? 'flex' : 'none';
+  document.getElementById('sheetDelete').style.display = data ? 'inline-flex' : 'none';
   document.getElementById('sheetOverlay').classList.add('open');
   document.getElementById('bottomSheet').classList.add('open');
+
+  // ★ EFEKT PRZESTRZENNY: skaluj tło pod spodem
+  document.getElementById('appContainer').classList.add('scaled-back');
 }
 
 function openMultiSheet() {
   sheetDate = null;
   document.getElementById('sheetDate').textContent = `Wybrane dni: ${selectedDates.size}`;
-  document.getElementById('sheetDelete').textContent = 'Usuń wpisy';
-  document.getElementById('sheetDayOffBtn').textContent = 'Oznacz jako wolne';
-  document.getElementById('sheetSaveBtn').textContent = 'Zapisz dla wszystkich';
+  document.getElementById('sheetDelete').textContent = 'Usuń';
+  document.getElementById('sheetDayOffBtn').textContent = 'Wolne';
+  document.getElementById('sheetSaveBtn').textContent = 'Zapisz';
 
   const s = TP_INSTANCES['sheet-start'];
   const e = TP_INSTANCES['sheet-end'];
@@ -2783,12 +2910,19 @@ function openMultiSheet() {
   document.getElementById('sheetOverlay').classList.add('open');
   document.getElementById('bottomSheet').classList.add('open');
   document.getElementById('dayDetails').style.display = 'none'; 
+
+  // ★ EFEKT PRZESTRZENNY: skaluj tło pod spodem
+  document.getElementById('appContainer').classList.add('scaled-back');
 }
 
 function closeSheet() {
+  preventRefresh = false;
   document.getElementById('sheetOverlay').classList.remove('open');
   document.getElementById('bottomSheet').classList.remove('open');
   document.getElementById('bottomSheet').style.transform = '';
+
+  // ★ EFEKT PRZESTRZENNY: przywróć normalne skalowanie tła
+  document.getElementById('appContainer').classList.remove('scaled-back');
   
   document.querySelectorAll('.cal-day.multi-sel, .cal-day.sel').forEach(el => {
     el.classList.remove('multi-sel', 'sel');
@@ -2832,17 +2966,18 @@ function setDayOff() {
 
 function deleteEntry() {
   const multi = selectedDates.size > 1;
-  if (!confirm(`Usunąć wpis${multi ? 'y' : ''}?`)) return;
+  if (!confirm(multi ? `Usunąć wpisy dla ${selectedDates.size} dni?` : 'Usunąć wpis dla tego dnia?')) return;
   
   selectedDates.forEach(date => {
     delete workData[date];
   });
   
-  persist(); recalc(); renderCalendar(); renderRecentEntries();
-  document.getElementById('dayDetails').style.display = 'none';
-  
-  closeSheet(); 
-  toast('Usunięto');
+  persist();
+  recalc();
+  renderCalendar();
+  renderRecentEntries();
+  closeSheet();
+  toast(multi ? 'Usunięto wybrane wpisy!' : 'Wpis został usunięty!');
 }
 
 // ================================================================
