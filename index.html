@@ -31,6 +31,7 @@
       --thumb-bg:  #3a3a3a;
       --thumb-ridge: rgba(255,255,255,0.35);
       --page-margin: 16px;
+      --overlay: rgba(11,11,11,0.55);
     }
 
     body.light {
@@ -42,6 +43,8 @@
       --border:   rgba(0,0,0,0.07);
       --thumb-bg: #ffffff;
       --thumb-ridge: rgba(0,0,0,0.35);
+      --overlay: rgba(ff,ff,ff,0.55);
+      
     }
     
     html, body {
@@ -215,7 +218,7 @@
     .sheet-actions .btn-danger {
       background-color: var(--surface2) !important;
       border: 1px solid var(--border, rgba(255,255,255,0.07)) !important;
-      color: var(--danger) !important;
+      color: var(--accent) !important;
     }
 
     .sheet-actions .btn-ghost {
@@ -746,7 +749,7 @@
 
     .overlay {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.55);
+      background: var(--overlay);
       z-index: 100;
       opacity: 0; pointer-events: none;
       transition: opacity 0.3s ease;
@@ -1104,10 +1107,6 @@
     }
 
     @keyframes statBounce {
-      0%   { transform: scale(1);    }
-      40%  { transform: scale(1.08); }
-      70%  { transform: scale(0.97); }
-      100% { transform: scale(1);    }
     }
     .stat-card-value.bounce {
       animation: statBounce 350ms cubic-bezier(0.34,1.56,0.64,1) both;
