@@ -768,13 +768,12 @@
       height: 8px;
       background: var(--surface2);
       border-radius: 4px;
-      overflow: hidden;
     }
 
     .today-progress-fill {
       position: absolute;
       top: 0; left: 0; bottom: 0;
-      background: linear-gradient(90deg, var(--accent), var(--accent-hi));
+      background: var(--accent);
       border-radius: 4px;
       transition: width 1s linear;
       min-width: 0;
@@ -791,7 +790,7 @@
       transform: translate(-50%, -50%);
       transition: left 1s linear;
       box-shadow: 0 0 8px rgba(252,69,3,0.4);
-      z-index: 2;
+      z-index: 9999;
     }
 
     .today-stats-grid {
@@ -1079,42 +1078,13 @@
   </div>
 
   <div id="calendar"></div>
-  <div id="dayDetails"></div>
-
   <!-- ========== RECENT ENTRIES ========== -->
   <div class="card" id="recentEntriesCard">
     <h2>Ostatnie wpisy</h2>
     <div id="recentEntriesList"></div>
   </div>
 
-  <div class="card">
-    <h2>Podsumowanie</h2>
-    <div class="field">
-      <label for="summaryPeriod">Okres</label>
-      <select id="summaryPeriod" onchange="updateSummary()">
-        <option value="">— wybierz —</option>
-        <option value="year">Ten rok</option>
-        <option value="month">Ten miesiąc</option>
-        <option value="week">Ten tydzień</option>
-        <option value="custom">Niestandardowy</option>
-      </select>
-    </div>
-    <div id="customDateRange" style="display:none;">
-      <div class="field">
-        <label for="customStartDate">Od</label>
-        <input type="date" id="customStartDate" onchange="updateSummary()">
-      </div>
-      <div class="field">
-        <label for="customEndDate">Do</label>
-        <input type="date" id="customEndDate" onchange="updateSummary()">
-      </div>
-    </div>
-    <div class="sum-row"><span class="key">Godziny</span><span class="val" id="totalHours">0.00 h</span></div>
-    <div class="sum-row"><span class="key">EUR</span><span class="val" id="totalEarnings">0.00 €</span></div>
-    <div class="sum-row"><span class="key">PLN</span><span class="val" id="totalEarningsPLN">0.00 PLN</span></div>
-  </div>
-
-  <button class="btn btn-ghost" onclick="exportToCSV()">Eksportuj CSV</button>
+  
 </div>
 
 <!-- ========== STATS PAGE ========== -->
