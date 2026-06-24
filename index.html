@@ -44,7 +44,6 @@
       --thumb-bg: #ffffff;
       --thumb-ridge: rgba(0,0,0,0.35);
       --overlay: rgba(ff,ff,ff,0.55);
-      
     }
     
     html, body {
@@ -110,9 +109,6 @@
       border: 1px solid var(--border);
     }
 
-    /* ============================================================
-       STAGGERED CARD ENTRANCE
-    ============================================================ */
     .stagger-card {
       opacity: 0;
       transform: translateY(20px) scale(0.98);
@@ -122,19 +118,10 @@
       animation: staggerIn 350ms cubic-bezier(0.22,1,0.36,1) both;
     }
     @keyframes staggerIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* ============================================================
-       STATS CARD CASCADE ANIMATION
-    ============================================================ */
     .stats-animate {
       opacity: 0;
       transform: translateY(20px) scale(0.98);
@@ -142,14 +129,8 @@
     }
 
     @keyframes statsCardIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .field { margin-bottom: 14px; }
@@ -261,9 +242,6 @@
 
     .btn + .btn { margin-top: 8px; }
 
-    /* ============================================================
-       TIME PICKER COMPONENT
-    ============================================================ */
     .tp-block { margin-bottom: 20px; }
     .tp-block:last-child { margin-bottom: 0; }
 
@@ -443,9 +421,6 @@
     }
     .tp-error.show { display: block; }
 
-    /* ============================================================
-       EARNINGS
-    ============================================================ */
     .earnings-card {
       padding: 26px 20px 20px;
       text-align: left;
@@ -476,9 +451,10 @@
       font-weight: 800;
       letter-spacing: -2px;
       color: var(--text);
-      line-height: 1.1;
+      line-height: 1.2;
       font-variant-numeric: tabular-nums;
       margin-bottom: 10px;
+      white-space: nowrap;
     }
 
     .small-decimal {
@@ -487,6 +463,7 @@
       color: var(--muted);
       vertical-align: baseline;
       margin-right: 2px;
+      display: inline-block;
     }
 
     .earnings-eur-symbol, .earnings-pln-symbol {
@@ -500,9 +477,6 @@
 
     .earnings-pln { margin-bottom: 18px; }
 
-    /* ============================================================
-       ANIMATED DIGIT FLIP
-    ============================================================ */
     .digit-wrapper {
       display: inline-block;
       position: relative;
@@ -535,59 +509,15 @@
     }
 
     @keyframes digitFlipOut {
-      0% {
-        transform: translateY(0) scale(1);
-        filter: blur(0px);
-        opacity: 1;
-      }
-      50% {
-        transform: translateY(-15%) scale(0.92);
-        filter: blur(3px);
-        opacity: 0.3;
-      }
-      100% {
-        transform: translateY(-30%) scale(0.85);
-        filter: blur(5px);
-        opacity: 0;
-      }
+      0%   { transform: translateY(0) scale(1); filter: blur(0px); opacity: 1; }
+      50%  { transform: translateY(-15%) scale(0.92); filter: blur(3px); opacity: 0.3; }
+      100% { transform: translateY(-30%) scale(0.85); filter: blur(5px); opacity: 0; }
     }
 
     @keyframes digitFlipIn {
-      0% {
-        transform: translateY(30%) scale(0.85);
-        filter: blur(5px);
-        opacity: 0;
-      }
-      50% {
-        transform: translateY(15%) scale(0.92);
-        filter: blur(3px);
-        opacity: 0.3;
-      }
-      100% {
-        transform: translateY(0) scale(1);
-        filter: blur(0px);
-        opacity: 1;
-      }
-    }
-
-    .earnings-eur, .earnings-pln {
-      font-size: 52px;
-      font-weight: 800;
-      letter-spacing: -2px;
-      color: var(--text);
-      line-height: 1.2;
-      font-variant-numeric: tabular-nums;
-      margin-bottom: 10px;
-      white-space: nowrap;
-    }
-
-    .small-decimal {
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--muted);
-      vertical-align: baseline;
-      margin-right: 2px;
-      display: inline-block;
+      0%   { transform: translateY(30%) scale(0.85); filter: blur(5px); opacity: 0; }
+      50%  { transform: translateY(15%) scale(0.92); filter: blur(3px); opacity: 0.3; }
+      100% { transform: translateY(0) scale(1); filter: blur(0px); opacity: 1; }
     }
 
     .hours-pill {
@@ -653,9 +583,6 @@
     #monthSelect { flex: 1; font-weight: 600; text-align: center; }
     #yearInput   { width: 74px; text-align: center; font-weight: 600; padding: 12px 6px; }
 
-    /* ============================================================
-       CALENDAR & MULTI-SELECT
-    ============================================================ */
     #calendar {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -876,16 +803,13 @@
 
     .divider { height: 1px; background: var(--border); margin: 14px 0; }
   
-    hr{
+    hr {
       border: none;
       height: 1px;
       background-color: var(--border);
       margin: 20px 0;
     }
 
-    /* ============================================================
-       TODAY LIVE CARD
-    ============================================================ */
     .today-live-card {
       padding: 20px;
       position: relative;
@@ -981,10 +905,7 @@
     .today-progress-fill::after {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: linear-gradient(
         110deg,
         transparent 0%,
@@ -1059,9 +980,6 @@
       padding: 16px 0;
     }
 
-    /* ============================================================
-       STATS PAGE
-    ============================================================ */
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1106,8 +1024,7 @@
       margin-bottom: 4px;
     }
 
-    @keyframes statBounce {
-    }
+    @keyframes statBounce { }
     .stat-card-value.bounce {
       animation: statBounce 350ms cubic-bezier(0.34,1.56,0.64,1) both;
     }
@@ -1149,9 +1066,6 @@
     }
     .yoy-table tr:last-child td { border-bottom: none; }
 
-    /* ============================================================
-       RECENT ENTRIES LIST
-    ============================================================ */
     .recent-entry {
       display: flex;
       align-items: center;
@@ -1193,9 +1107,6 @@
       font-style: italic;
     }
 
-    /* ============================================================
-       EFEKT PRZESTRZENNY DLA TŁA POD BOTTOM SHEET
-    ============================================================ */
     #appContainer {
       width: 100%;
       min-height: 100dvh;
@@ -1206,7 +1117,6 @@
       will-change: transform, border-radius;
     }
 
-    /* Stan, gdy bottomSheet jest otwarty */
     #appContainer.scaled-back {
       transform: scale(0.96);
       opacity: 1;
@@ -1218,28 +1128,20 @@
 </head>
 <body>
 
-<!-- ============================================================
-     APP CONTAINER — zawiera wszystkie strony i dolną nawigację
-     (elementy poza nim: overlay, sheet, toast — nie są skalowane)
-============================================================ -->
 <div id="appContainer">
 
   <div id="mainPage" class="page active">
     <h1>Zarobki</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Podaj godzinę rozpoczęcia oraz zakończenia pracy i na żywo obserwuj wzrastający licznik zarobków.</p>
 
-    <!-- Card 1: Earnings -->
     <div class="card earnings-card stagger-card" data-stagger="0">
       <div class="earnings-eyebrow" id="earningsYearLabel">Rok 2025</div>
-      
       <div class="earnings-eur">
         <span id="earningsEURMain">0.00</span><span id="earningsEURSub" class="small-decimal">00</span><span class="earnings-eur-symbol">€</span>
       </div>
-      
       <div class="earnings-pln">
         <span id="earningsPLNMain">0.00</span><span id="earningsPLNSub" class="small-decimal">00</span><span class="earnings-pln-symbol">PLN</span>
       </div>
-
       <div class="hours-pill">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -1253,7 +1155,6 @@
       </div>
     </div>
 
-    <!-- Card 2: Today Live -->
     <div class="card today-live-card stagger-card" id="todayLiveCard" data-stagger="1">
       <div class="today-live-header">
         <span class="today-live-title">Dzisiaj</span>
@@ -1267,7 +1168,6 @@
       </div>
     </div>
 
-    <!-- Card 3: Set Time Button -->
     <div class="card stagger-card" data-stagger="2">
       <button class="btn btn-ghost" onclick="openTodaySheet()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1282,7 +1182,6 @@
     <h1>Kalendarz</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Dotknij dnia, aby go edytować, lub przytrzymaj i przesuń, aby zaznaczyć zakres dni.</p>
 
-    <!-- Card 1: Month Picker -->
     <div class="stagger-card" data-stagger="0">
       <div class="month-picker">
         <button class="mon-arrow" id="prevMonth">&#9650;</button>
@@ -1299,29 +1198,24 @@
       </div>
     </div>
 
-    <!-- Card 2: Calendar grid -->
     <div class="stagger-card" data-stagger="1">
       <div id="calendar"></div>
     </div>
 
-    <!-- Card 3: Recent Entries -->
     <div class="card stagger-card" id="recentEntriesCard" data-stagger="2">
       <h2>Ostatnie wpisy</h2>
       <div id="recentEntriesList"></div>
     </div>
   </div>
 
-  <!-- STATS PAGE -->
   <div id="statsPage" class="page">
     <h1>Statystyki</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Szczegółowe podsumowanie Twojej pracy i zarobków na przestrzeni czasu.</p>
 
-    <!-- Card 1: Stat Grid -->
     <div class="stagger-card" data-stagger="0">
       <div class="stats-grid" id="statsGrid"></div>
     </div>
 
-    <!-- Card 2: Year Comparison -->
     <div class="card stagger-card" data-stagger="1">
       <h2>Zarobki rok do roku</h2>
       <div id="yoyTableWrap"></div>
@@ -1332,7 +1226,6 @@
     <h1>Ustawienia</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Modyfikuj stawki godzinowe i kurs przewalutowania, dostosuj motyw lub eksportuj i importuj dane.</p>
 
-    <!-- Card 1: Rates -->
     <div class="card settings-block stagger-card" data-stagger="0">
       <div class="field">
         <label for="hourlyRateInput">Stawka godzinowa (EUR)</label>
@@ -1345,7 +1238,6 @@
       <button class="btn btn-primary" onclick="saveRates()">Zapisz stawki</button>
     </div>
 
-    <!-- Card 2: Appearance -->
     <div class="card settings-block stagger-card" data-stagger="1">
       <h2>Wygląd</h2>
       <button class="btn btn-ghost" onclick="toggleTheme()">
@@ -1360,7 +1252,6 @@
       </button>
     </div>
 
-    <!-- Card 3: Backup -->
     <div class="card settings-block stagger-card" data-stagger="2">
       <h2>Kopie zapasowe</h2>
       <button class="btn btn-ghost" onclick="backupData()">Eksportuj dane (JSON)</button>
@@ -1368,7 +1259,6 @@
       <input type="file" id="restoreFile" accept=".json" style="display:none;" onchange="handleFileUpload(event)">
     </div>
 
-    <!-- Card 4: Drive -->
     <div class="card settings-block stagger-card" data-stagger="3">
       <h2>Google Drive</h2>
       <div class="sync-row">
@@ -1387,7 +1277,6 @@
       <button class="btn btn-ghost" id="gdriveRestoreBtn" style="display:none;" onclick="restoreFromGDrive()">Przywróć z Drive</button>
     </div>
 
-    <!-- Card 5: Install -->
     <div class="card settings-block stagger-card" id="installSection" data-stagger="4">
       <h2>Instalacja</h2>
       <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Zainstaluj aplikację na ekranie głównym dla szybkiego dostępu.</p>
@@ -1401,14 +1290,7 @@
     </div>
   </div>
 
-  <!-- Dolna nawigacja WEWNĄTRZ appContainer — skaluje się razem z resztą -->
-
-
-</div><!-- /#appContainer -->
-
-<!-- ============================================================
-     ELEMENTY POZA appContainer — nie są skalowane
-============================================================ -->
+</div>
 
   <nav class="bottom-nav">
     <button class="nav-btn active" id="mainPageBtn" onclick="showPage('mainPage')">
@@ -1546,6 +1428,103 @@ let activePointerCell = null;
 let sheetDragStartY = 0;
 let sheetDragCurrentY = 0;
 let isDraggingSheet = false;
+
+// ================================================================
+//  HISTORY / NAVIGATION STATE MANAGEMENT
+// ================================================================
+let historyStack = []; // Track our custom history entries
+let isHandlingPopstate = false; // Prevent recursive popstate handling
+let sheetIsOpen = false; // Track bottom sheet state for history
+
+function getHistoryState() {
+  return {
+    page: activePage,
+    sheetOpen: sheetIsOpen
+  };
+}
+
+// Push a new history entry for page navigation
+function pushPageHistory(pageId) {
+  if (isHandlingPopstate) return;
+  const state = { type: 'page', page: pageId, timestamp: Date.now() };
+  history.pushState(state, '', '');
+  historyStack.push(state);
+}
+
+// Push a history entry when the bottom sheet opens
+function pushSheetHistory() {
+  if (isHandlingPopstate) return;
+  const state = { type: 'sheet', page: activePage, timestamp: Date.now() };
+  history.pushState(state, '', '');
+  historyStack.push(state);
+  sheetIsOpen = true;
+}
+
+// Pop the sheet history entry when sheet closes
+function popSheetHistory() {
+  if (isHandlingPopstate) return;
+  if (sheetIsOpen && historyStack.length > 0) {
+    const lastEntry = historyStack[historyStack.length - 1];
+    if (lastEntry && lastEntry.type === 'sheet') {
+      isHandlingPopstate = true;
+      history.back();
+      // The popstate handler will fire but we skip it via the flag
+      setTimeout(() => {
+        historyStack.pop();
+        isHandlingPopstate = false;
+      }, 50);
+    }
+  }
+  sheetIsOpen = false;
+}
+
+// Handle system back button / gesture
+window.addEventListener('popstate', (e) => {
+  if (isHandlingPopstate) {
+    // This popstate was triggered by our own popSheetHistory call, ignore it
+    return;
+  }
+
+  isHandlingPopstate = true;
+
+  // If the bottom sheet is open, close it
+  if (sheetIsOpen) {
+    sheetIsOpen = false;
+    historyStack.pop();
+    closeSheetVisual(); // Close without touching history
+    isHandlingPopstate = false;
+    return;
+  }
+
+  // If we have page history, go back to the previous page
+  if (historyStack.length > 0) {
+    historyStack.pop();
+    
+    // Determine which page to show
+    let targetPage = 'mainPage'; // Default fallback
+    if (historyStack.length > 0) {
+      const prevEntry = historyStack[historyStack.length - 1];
+      targetPage = prevEntry.page || 'mainPage';
+    }
+
+    showPageWithoutHistory(targetPage);
+    isHandlingPopstate = false;
+    return;
+  }
+
+  // No more history — we're at the root. 
+  // Push a fresh state so the app doesn't close on next back press immediately
+  // (or let the browser handle it naturally to close/minimize the PWA)
+  isHandlingPopstate = false;
+});
+
+// Initialize history state on load
+function initHistory() {
+  // Replace the initial state so we have a known starting point
+  const initialState = { type: 'page', page: 'mainPage', timestamp: Date.now() };
+  history.replaceState(initialState, '', '');
+  historyStack = [initialState];
+}
 
 // ================================================================
 //  HAPTIC VIBRATION UTILITY
@@ -2471,7 +2450,11 @@ window.addEventListener('load', () => {
 
   recalc();
   renderRecentEntries();
-  showPage('mainPage');
+  
+  // Initialize history management
+  initHistory();
+  
+  showPageWithoutHistory('mainPage');
 });
 
 function getPreviousSession() {
@@ -2509,7 +2492,8 @@ function saveRates() {
 // ================================================================
 let activePage = 'mainPage';
 
-function showPage(id) {
+// Internal page switch without pushing history (used by popstate handler)
+function showPageWithoutHistory(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   activePage = id;
@@ -2531,6 +2515,16 @@ function showPage(id) {
   requestAnimationFrame(() => {
     triggerStaggeredEntrance(id);
   });
+}
+
+function showPage(id) {
+  // Don't push history if we're already on this page
+  if (id === activePage) return;
+  
+  // Push history entry for page navigation
+  pushPageHistory(id);
+  
+  showPageWithoutHistory(id);
 }
 
 // ================================================================
@@ -2857,8 +2851,30 @@ function setupSheetSwipeToDismiss() {
 }
 
 // ================================================================
-//  BOTTOM SHEET — z efektem przestrzennym na #appContainer
+//  BOTTOM SHEET — with history integration
 // ================================================================
+
+// Visual-only close (no history manipulation) — used by popstate handler
+function closeSheetVisual() {
+  preventRefresh = false;
+  document.getElementById('sheetOverlay').classList.remove('open');
+  document.getElementById('bottomSheet').classList.remove('open');
+  document.getElementById('bottomSheet').style.transform = '';
+
+  document.getElementById('appContainer').classList.remove('scaled-back');
+  
+  document.querySelectorAll('.cal-day.multi-sel, .cal-day.sel').forEach(el => {
+    el.classList.remove('multi-sel', 'sel');
+  });
+
+  sheetIsOpen = false;
+
+  setTimeout(() => {
+    selectedDates.clear();
+    sheetDate = null;
+  }, 300);
+}
+
 function openSheet(date) {
   selectedDates.clear();
   selectedDates.add(date); 
@@ -2886,8 +2902,10 @@ function openSheet(date) {
   document.getElementById('sheetOverlay').classList.add('open');
   document.getElementById('bottomSheet').classList.add('open');
 
-  // ★ EFEKT PRZESTRZENNY: skaluj tło pod spodem
   document.getElementById('appContainer').classList.add('scaled-back');
+
+  // Push history entry for sheet
+  pushSheetHistory();
 }
 
 function openMultiSheet() {
@@ -2910,27 +2928,18 @@ function openMultiSheet() {
   document.getElementById('bottomSheet').classList.add('open');
   document.getElementById('dayDetails').style.display = 'none'; 
 
-  // ★ EFEKT PRZESTRZENNY: skaluj tło pod spodem
   document.getElementById('appContainer').classList.add('scaled-back');
+
+  // Push history entry for sheet
+  pushSheetHistory();
 }
 
 function closeSheet() {
-  preventRefresh = false;
-  document.getElementById('sheetOverlay').classList.remove('open');
-  document.getElementById('bottomSheet').classList.remove('open');
-  document.getElementById('bottomSheet').style.transform = '';
-
-  // ★ EFEKT PRZESTRZENNY: przywróć normalne skalowanie tła
-  document.getElementById('appContainer').classList.remove('scaled-back');
+  // Pop the sheet history entry (triggers history.back internally)
+  popSheetHistory();
   
-  document.querySelectorAll('.cal-day.multi-sel, .cal-day.sel').forEach(el => {
-    el.classList.remove('multi-sel', 'sel');
-  });
-
-  setTimeout(() => {
-    selectedDates.clear();
-    sheetDate = null;
-  }, 300);
+  // Perform the visual close
+  closeSheetVisual();
 }
 
 function saveSheet() {
