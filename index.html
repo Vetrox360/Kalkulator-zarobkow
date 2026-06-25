@@ -26,8 +26,8 @@
       --success:   #22c55e;
       --warning:   #eab308;
       --danger:    #ff3b30;
-      --r:         14px;
-      --r-sm:      9px;
+      --r:         28px;
+      --r-sm:      14px;
       --thumb-bg:  #3a3a3a;
       --thumb-ridge: rgba(255,255,255,0.35);
       --page-margin: 16px;
@@ -70,6 +70,10 @@
 
     ::-webkit-scrollbar { display: none; }
     * { scrollbar-width: none; -ms-overflow-style: none; }
+    
+    .title{
+      margin: 0px 7px 0px 7px;
+    }
 
     .page {
       display: none;
@@ -1131,8 +1135,10 @@
 <div id="appContainer">
 
   <div id="mainPage" class="page active">
+    <div class="title">
     <h1>Zarobki</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Podaj godzinę rozpoczęcia oraz zakończenia pracy i na żywo obserwuj wzrastający licznik zarobków.</p>
+    </div>
 
     <div class="card earnings-card stagger-card" data-stagger="0">
       <div class="earnings-eyebrow" id="earningsYearLabel">Rok 2025</div>
@@ -1166,9 +1172,7 @@
       <div id="todayLiveContent">
         <div class="today-no-entry">Ustaw godziny pracy poniżej, aby zobaczyć postęp dnia.</div>
       </div>
-    </div>
-
-    <div class="card stagger-card" data-stagger="2">
+      <hr>
       <button class="btn btn-ghost" onclick="openTodaySheet()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -1179,8 +1183,10 @@
   </div>
 
   <div id="calendarPage" class="page">
+    <div class="title">
     <h1>Kalendarz</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Dotknij dnia, aby go edytować, lub przytrzymaj i przesuń, aby zaznaczyć zakres dni.</p>
+    </div>
 
     <div class="stagger-card" data-stagger="0">
       <div class="month-picker">
@@ -1209,22 +1215,26 @@
   </div>
 
   <div id="statsPage" class="page">
+    <div class="title">
     <h1>Statystyki</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Szczegółowe podsumowanie Twojej pracy i zarobków na przestrzeni czasu.</p>
+        </div>
 
     <div class="stagger-card" data-stagger="0">
       <div class="stats-grid" id="statsGrid"></div>
     </div>
 
-    <div class="card stagger-card" data-stagger="1">
+    <div class="card stagger-card" data-stagger="6">
       <h2>Zarobki rok do roku</h2>
       <div id="yoyTableWrap"></div>
     </div>
   </div>
 
   <div id="settingsPage" class="page">
+        <div class="title">
     <h1>Ustawienia</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Modyfikuj stawki godzinowe i kurs przewalutowania, dostosuj motyw lub eksportuj i importuj dane.</p>
+        </div>
 
     <div class="card settings-block stagger-card" data-stagger="0">
       <div class="field">
