@@ -32,6 +32,8 @@
       --thumb-ridge: rgba(255,255,255,0.35);
       --page-margin: 16px;
       --overlay: rgba(11,11,11,0.55);
+      --shadow: 0 -12px 48px rgba(0,0,0,0.7);
+      --shadow-low 0 5px 48px rgba(0,0,0,0.7);
     }
 
     body.light {
@@ -44,6 +46,8 @@
       --thumb-bg: #ffffff;
       --thumb-ridge: rgba(0,0,0,0.35);
       --overlay: rgba(ff,ff,ff,0.55);
+      --shadow: 0 -12px 48px rgba(0,0,0,0.3);
+      --shadow-low: 0 0px 14px rgba(0,0,0,0.3);
     }
     
     html, body {
@@ -74,6 +78,75 @@
     .title{
       margin: 0px 7px 0px 7px;
     }
+    
+    .progressive-blur-container {
+  position: fixed; /* Musi być fixed, aby nie uciekało przy skrolowaniu */
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  /* Wysokość: pasek nawigacji (ok. 70px) + 40px blurowanej treści */
+  height: calc(110px + env(safe-area-inset-bottom)); 
+  pointer-events: none; /* Pozwala klikać w elementy pod rozmyciem */
+  z-index: 45; /* Pasek nav ma z-index 50, więc rozmycie będzie tuż pod nim */
+}
+
+.progressive-blur-container > .blur-filter {
+  position: absolute;
+  inset: 0;
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+}
+
+/* Nakładanie warstw rozmycia z progresywnymi maskami */
+.progressive-blur-container > .blur-filter:nth-child(1) {
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 10%, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 40%);
+}
+
+.progressive-blur-container > .blur-filter:nth-child(2) {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 50%);
+}
+
+.progressive-blur-container > .blur-filter:nth-child(3) {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 15%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 60%);
+}
+
+.progressive-blur-container > .blur-filter:nth-child(4) {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 70%);
+}
+
+.progressive-blur-container > .blur-filter:nth-child(5) {
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 90%);
+}
+
+.progressive-blur-container > .blur-filter:nth-child(6) {
+  -webkit-backdrop-filter: blur(32px);
+  backdrop-filter: blur(32px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,1) 80%);
+}
+
+.progressive-blur-container > .blur-filter:nth-child(7) {
+  -webkit-backdrop-filter: blur(64px);
+  backdrop-filter: blur(64px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 70%, rgba(0,0,0,1) 100%);
+}
+
+.progressive-blur-container > .gradient {
+  position: absolute;
+  inset: 0;
+  /* Zamiast białego, używamy koloru tła aplikacji var(--bg) */
+  background: linear-gradient(to bottom, transparent 0%, var(--bg) 100%);
+}
 
     .page {
       display: none;
@@ -698,9 +771,9 @@
       border-radius: var(--r);
       padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
       z-index: 101;
-      transform: translateY(calc(100% + var(--page-margin)));
+      transform: translateY(calc(110% + var(--page-margin)));
       transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
-      box-shadow: 0 -12px 48px rgba(0,0,0,0.5);
+      box-shadow: var(--shadow);
       border: 1px solid var(--border);
       max-height: calc(92dvh - var(--page-margin) * 2);
       overflow-y: auto;
@@ -724,7 +797,7 @@
 
     .bottom-nav {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
+      bottom: 14px; left: 14px; right: 14px;
       background: var(--surface);
       -webkit-backdrop-filter: blur(24px);
       backdrop-filter: blur(24px);
@@ -733,8 +806,45 @@
       align-items: center;
       padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
       z-index: 50;
-      border-top: 1px solid var(--border);
+      border: 1px solid var(--border);
+      border-radius: 200px;
+      
     }
+    
+    .blur-bottom {
+    position: relative;
+}
+
+.blur-bottom::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 30px;
+    pointer-events: none;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0,0,0,0.15) 20%,
+        rgba(0,0,0,0.4) 50%,
+        rgba(0,0,0,0.7) 80%,
+        black 100%
+    );
+
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0,0,0,0.15) 20%,
+        rgba(0,0,0,0.4) 50%,
+        rgba(0,0,0,0.7) 80%,
+        black 100%
+    );
+}
 
     .nav-btn {
       flex: 1;
@@ -743,7 +853,7 @@
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       gap: 3px;
-      border-radius: var(--r-sm);
+      border-radius: var(--r);
       color: var(--muted);
       transition: color 0.2s, transform 0.18s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
       padding: 6px 4px;
@@ -1132,7 +1242,7 @@
 </head>
 <body>
 
-<div id="appContainer">
+<div id="appContainer" class="blur-bottom">
 
   <div id="mainPage" class="page active">
     <div class="title">
@@ -1301,6 +1411,18 @@
   </div>
 
 </div>
+
+<div class="progressive-blur-container">
+  <div class="blur-filter"></div>
+  <div class="blur-filter"></div>
+  <div class="blur-filter"></div>
+  <div class="blur-filter"></div>
+  <div class="blur-filter"></div>
+  <div class="blur-filter"></div>
+  <div class="blur-filter"></div>
+  <div class="gradient"></div>
+</div>
+
 
   <nav class="bottom-nav">
     <button class="nav-btn active" id="mainPageBtn" onclick="showPage('mainPage')">
