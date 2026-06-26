@@ -80,73 +80,70 @@
     }
     
     .progressive-blur-container {
-  position: fixed; /* Musi być fixed, aby nie uciekało przy skrolowaniu */
-  left: 0;
-  bottom: 0;
-  right: 0;
-  width: 100%;
-  /* Wysokość: pasek nawigacji (ok. 70px) + 40px blurowanej treści */
-  height: calc(110px + env(safe-area-inset-bottom)); 
-  pointer-events: none; /* Pozwala klikać w elementy pod rozmyciem */
-  z-index: 45; /* Pasek nav ma z-index 50, więc rozmycie będzie tuż pod nim */
-}
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      height: calc(105px + env(safe-area-inset-bottom)); 
+      pointer-events: none;
+      z-index: 45;
+    }
 
-.progressive-blur-container > .blur-filter {
-  position: absolute;
-  inset: 0;
-  -webkit-backdrop-filter: blur(0px);
-  backdrop-filter: blur(0px);
-}
+    .progressive-blur-container > .blur-filter {
+      position: absolute;
+      inset: 0;
+      -webkit-backdrop-filter: blur(0px);
+      backdrop-filter: blur(0px);
+    }
 
-/* Nakładanie warstw rozmycia z progresywnymi maskami */
-.progressive-blur-container > .blur-filter:nth-child(1) {
-  -webkit-backdrop-filter: blur(1px);
-  backdrop-filter: blur(1px);
-  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 10%, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 40%);
-}
+    .progressive-blur-container > .blur-filter:nth-child(1) {
+      -webkit-backdrop-filter: blur(1px);
+      backdrop-filter: blur(1px);
+      -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 10%, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 40%);
+    }
 
-.progressive-blur-container > .blur-filter:nth-child(2) {
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 50%);
-}
+    .progressive-blur-container > .blur-filter:nth-child(2) {
+      -webkit-backdrop-filter: blur(2px);
+      backdrop-filter: blur(2px);
+      -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 50%);
+    }
 
-.progressive-blur-container > .blur-filter:nth-child(3) {
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 15%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 60%);
-}
+    .progressive-blur-container > .blur-filter:nth-child(3) {
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
+      -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 15%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 60%);
+    }
 
-.progressive-blur-container > .blur-filter:nth-child(4) {
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 70%);
-}
+    .progressive-blur-container > .blur-filter:nth-child(4) {
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 70%);
+    }
 
-.progressive-blur-container > .blur-filter:nth-child(5) {
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 90%);
-}
+    .progressive-blur-container > .blur-filter:nth-child(5) {
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 90%);
+    }
 
-.progressive-blur-container > .blur-filter:nth-child(6) {
-  -webkit-backdrop-filter: blur(32px);
-  backdrop-filter: blur(32px);
-  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,1) 80%);
-}
+    .progressive-blur-container > .blur-filter:nth-child(6) {
+      -webkit-backdrop-filter: blur(32px);
+      backdrop-filter: blur(32px);
+      -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,1) 80%);
+    }
 
-.progressive-blur-container > .blur-filter:nth-child(7) {
-  -webkit-backdrop-filter: blur(64px);
-  backdrop-filter: blur(64px);
-  -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 70%, rgba(0,0,0,1) 100%);
-}
+    .progressive-blur-container > .blur-filter:nth-child(7) {
+      -webkit-backdrop-filter: blur(64px);
+      backdrop-filter: blur(64px);
+      -webkit-mask: linear-gradient(to bottom, rgba(0,0,0,0) 70%, rgba(0,0,0,1) 100%);
+    }
 
-.progressive-blur-container > .gradient {
-  position: absolute;
-  inset: 0;
-  /* Zamiast białego, używamy koloru tła aplikacji var(--bg) */
-  background: linear-gradient(to bottom, transparent 0%, var(--bg) 100%);
-}
+    .progressive-blur-container > .gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 0%, var(--bg) 100%);
+    }
 
     .page {
       display: none;
@@ -789,10 +786,113 @@
       border-radius: 2px;
       margin: 0 auto 18px;
     }
+
+    /* ── NEW: Sheet date display ── */
+    .sheet-date-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    /* Day box — styled like a calendar cell */
+    .sheet-date-day-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+     width: 48px;
+      height: 48px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 6px 8px;
+      position: relative;
+    }
+
+    .sheet-date-day-num {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sheet-date-day-badge {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 6px;
+      padding: 1px 5px;
+      font-size: 9px;
+      font-weight: 800;
+      line-height: 1.4;
+      min-width: 22px;
+      text-align: center;
+      transition: opacity 0.2s;
+    }
+
+    .sheet-date-day-badge.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Month box — styled like the month select in the calendar header */
+    .sheet-date-month-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      padding: 0 14px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      min-width: 100px;
+    }
+
+    /* Year box — styled like the year input in the calendar header */
+    .sheet-date-year-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      padding: 0 10px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      min-width: 68px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Multi-select variant — replace day box with a count pill */
+    .sheet-date-multi-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      padding: 0 18px;
+      background: var(--accent-lo);
+      border: 1.5px solid var(--accent);
+      border-radius: var(--r-sm);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      gap: 6px;
+    }
+
+    /* ── end new styles ── */
+
     .sheet-date {
       font-size: 17px; font-weight: 700;
       text-align: center; margin-bottom: 18px;
       color: var(--text);
+      /* keep for fallback / multi-select text */
     }
 
     .bottom-nav {
@@ -808,43 +908,25 @@
       z-index: 50;
       border: 1px solid var(--border);
       border-radius: 200px;
-      
     }
     
     .blur-bottom {
-    position: relative;
-}
+      position: relative;
+    }
 
-.blur-bottom::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 30px;
-    pointer-events: none;
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        rgba(0,0,0,0.15) 20%,
-        rgba(0,0,0,0.4) 50%,
-        rgba(0,0,0,0.7) 80%,
-        black 100%
-    );
-
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        rgba(0,0,0,0.15) 20%,
-        rgba(0,0,0,0.4) 50%,
-        rgba(0,0,0,0.7) 80%,
-        black 100%
-    );
-}
+    .blur-bottom::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 30px;
+      pointer-events: none;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.15) 20%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.7) 80%, black 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.15) 20%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.7) 80%, black 100%);
+    }
 
     .nav-btn {
       flex: 1;
@@ -1460,11 +1542,16 @@
 
 <div class="sheet" id="bottomSheet">
   <div class="sheet-handle"></div>
-  <div class="sheet-date" id="sheetDate">—</div>
+
+  <!-- NEW structured date display — replaces the old .sheet-date div -->
+  <div class="sheet-date-display" id="sheetDateDisplay">
+    <!-- populated by renderSheetDateDisplay() -->
+  </div>
 
   <div class="tp-error" id="sheetError">Godzina zakończenia musi być późniejsza niż rozpoczęcia!</div>
 
   <div class="tp-block" data-tp="sheet-start" data-kind="start">
+    <hr>
     <span class="tp-label">Rozpoczęcie</span>
     <div class="tp-matrix">
       <div class="tp-group" data-seg="hour">
@@ -1561,21 +1648,107 @@ let sheetDragStartY = 0;
 let sheetDragCurrentY = 0;
 let isDraggingSheet = false;
 
+// Polish month names (nominative — for display)
+const MONTH_NAMES_PL = [
+  'Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
+  'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'
+];
+
+// ================================================================
+//  SHEET DATE DISPLAY
+// ================================================================
+
+/**
+ * Compute the live hours badge text from the two pickers.
+ * Returns a string like "7.5h" / "8h" / "" when times are invalid/equal.
+ */
+function sheetLiveHoursText() {
+  const s = TP_INSTANCES['sheet-start'];
+  const e = TP_INSTANCES['sheet-end'];
+  if (!s || !e) return '';
+  const sv = tpGetTime(s);
+  const ev = tpGetTime(e);
+  if (!sv || !ev) return '';
+  const [sh, sm] = sv.split(':').map(Number);
+  const [eh, em] = ev.split(':').map(Number);
+  const sMin = sh * 60 + sm;
+  const eMin = eh * 60 + em;
+  if (eMin <= sMin) return '';
+  const h = (eMin - sMin) / 60;
+  return h % 1 === 0 ? `${Math.floor(h)}h` : `${h.toFixed(1)}h`;
+}
+
+/**
+ * Render or update the structured date display inside the sheet.
+ * Called once when the sheet opens and again whenever sliders move.
+ */
+function renderSheetDateDisplay() {
+  const container = document.getElementById('sheetDateDisplay');
+  if (!container) return;
+
+  // ── Multi-select mode ──────────────────────────────────────────
+  if (!sheetDate && selectedDates.size > 1) {
+    container.innerHTML = `
+      <div class="sheet-date-multi-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Wybrane dni: ${selectedDates.size}
+      </div>`;
+    return;
+  }
+
+  // ── Single-date mode ───────────────────────────────────────────
+  if (!sheetDate) return;
+
+  // Parse the ISO date string (YYYY-MM-DD) without timezone pitfalls
+  const parts = sheetDate.split('-');
+  const dayNum   = parseInt(parts[2], 10);
+  const monthIdx = parseInt(parts[1], 10) - 1; // 0-based
+  const year     = parseInt(parts[0], 10);
+
+  const monthName = MONTH_NAMES_PL[monthIdx];
+  const hoursText = sheetLiveHoursText();
+
+  container.innerHTML = `
+    <div class="sheet-date-day-box">
+      <span class="sheet-date-day-num">${dayNum}</span>
+      <div class="sheet-date-day-badge${hoursText ? '' : ' hidden'}" id="sheetLiveBadge">
+        ${hoursText || '0h'}
+      </div>
+    </div>
+    <div class="sheet-date-month-box">${monthName}</div>
+    <div class="sheet-date-year-box">${year}</div>`;
+}
+
+/**
+ * Update only the live hours badge — called on every picker change
+ * so we avoid re-rendering the whole header unnecessarily.
+ */
+function updateSheetLiveBadge() {
+  const badge = document.getElementById('sheetLiveBadge');
+  if (!badge) {
+    // Badge doesn't exist yet (multi-select or not rendered) — do a full render
+    renderSheetDateDisplay();
+    return;
+  }
+  const text = sheetLiveHoursText();
+  if (text) {
+    badge.textContent = text;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
 // ================================================================
 //  HISTORY / NAVIGATION STATE MANAGEMENT
 // ================================================================
-let historyStack = []; // Track our custom history entries
-let isHandlingPopstate = false; // Prevent recursive popstate handling
-let sheetIsOpen = false; // Track bottom sheet state for history
+let historyStack = [];
+let isHandlingPopstate = false;
+let sheetIsOpen = false;
 
-function getHistoryState() {
-  return {
-    page: activePage,
-    sheetOpen: sheetIsOpen
-  };
-}
-
-// Push a new history entry for page navigation
 function pushPageHistory(pageId) {
   if (isHandlingPopstate) return;
   const state = { type: 'page', page: pageId, timestamp: Date.now() };
@@ -1583,7 +1756,6 @@ function pushPageHistory(pageId) {
   historyStack.push(state);
 }
 
-// Push a history entry when the bottom sheet opens
 function pushSheetHistory() {
   if (isHandlingPopstate) return;
   const state = { type: 'sheet', page: activePage, timestamp: Date.now() };
@@ -1592,7 +1764,6 @@ function pushSheetHistory() {
   sheetIsOpen = true;
 }
 
-// Pop the sheet history entry when sheet closes
 function popSheetHistory() {
   if (isHandlingPopstate) return;
   if (sheetIsOpen && historyStack.length > 0) {
@@ -1600,7 +1771,6 @@ function popSheetHistory() {
     if (lastEntry && lastEntry.type === 'sheet') {
       isHandlingPopstate = true;
       history.back();
-      // The popstate handler will fire but we skip it via the flag
       setTimeout(() => {
         historyStack.pop();
         isHandlingPopstate = false;
@@ -1610,49 +1780,34 @@ function popSheetHistory() {
   sheetIsOpen = false;
 }
 
-// Handle system back button / gesture
 window.addEventListener('popstate', (e) => {
-  if (isHandlingPopstate) {
-    // This popstate was triggered by our own popSheetHistory call, ignore it
-    return;
-  }
-
+  if (isHandlingPopstate) return;
   isHandlingPopstate = true;
 
-  // If the bottom sheet is open, close it
   if (sheetIsOpen) {
     sheetIsOpen = false;
     historyStack.pop();
-    closeSheetVisual(); // Close without touching history
+    closeSheetVisual();
     isHandlingPopstate = false;
     return;
   }
 
-  // If we have page history, go back to the previous page
   if (historyStack.length > 0) {
     historyStack.pop();
-    
-    // Determine which page to show
-    let targetPage = 'mainPage'; // Default fallback
+    let targetPage = 'mainPage';
     if (historyStack.length > 0) {
       const prevEntry = historyStack[historyStack.length - 1];
       targetPage = prevEntry.page || 'mainPage';
     }
-
     showPageWithoutHistory(targetPage);
     isHandlingPopstate = false;
     return;
   }
 
-  // No more history — we're at the root. 
-  // Push a fresh state so the app doesn't close on next back press immediately
-  // (or let the browser handle it naturally to close/minimize the PWA)
   isHandlingPopstate = false;
 });
 
-// Initialize history state on load
 function initHistory() {
-  // Replace the initial state so we have a known starting point
   const initialState = { type: 'page', page: 'mainPage', timestamp: Date.now() };
   history.replaceState(initialState, '', '');
   historyStack = [initialState];
@@ -1898,6 +2053,8 @@ function tpCommit(inst) {
   if (inst.onChange) inst.onChange(tpGetTime(inst));
   tpUpdateSlider(inst);
   validatePickers();
+  // Update the live badge in the sheet header
+  updateSheetLiveBadge();
 }
 
 function tpGetTime(inst) {
@@ -2013,6 +2170,8 @@ function tpAttachSlider(inst) {
     tpRender(inst);
     if (inst.onChange) inst.onChange(tpGetTime(inst));
     validatePickers();
+    // Update the live badge as the slider moves
+    updateSheetLiveBadge();
   }
 
   function onDown(e) {
@@ -2427,11 +2586,10 @@ function renderStats() {
     if (h > bestMonthH) { bestMonthH = h; bestMonth = m; }
   }
 
-  const monthNames = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
   let bestMonthLabel = bestMonth;
   if (bestMonth) {
     const [y, m] = bestMonth.split('-');
-    bestMonthLabel = `${monthNames[parseInt(m)-1]} ${y}`;
+    bestMonthLabel = `${MONTH_NAMES_PL[parseInt(m)-1]} ${y}`;
   }
 
   const totalEUR = workingDays.reduce((s, d) => s + d.eur, 0);
@@ -2496,8 +2654,8 @@ function renderStats() {
         <td style="font-weight:700">${y}</td>
         <td>${ym.days}</td>
         <td>${ym.hours.toFixed(1)}h</td>
-        <td style="font-weight:700;color:var(--accent)">${ym.eur.toFixed(2)} €</td>
-        <td>${(ym.eur * PLN_RATE).toFixed(0)} PLN</td>
+        <td style="font-weight:700;color:var(--text)">${ym.eur.toFixed(2)} €</td>
+        <td style="font-weight:700">${(ym.eur * PLN_RATE).toFixed(0)} PLN</td>
       </tr>`;
     }
     yoyWrap.innerHTML = `<table class="yoy-table">
@@ -2583,7 +2741,6 @@ window.addEventListener('load', () => {
   recalc();
   renderRecentEntries();
   
-  // Initialize history management
   initHistory();
   
   showPageWithoutHistory('mainPage');
@@ -2624,7 +2781,6 @@ function saveRates() {
 // ================================================================
 let activePage = 'mainPage';
 
-// Internal page switch without pushing history (used by popstate handler)
 function showPageWithoutHistory(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -2650,12 +2806,8 @@ function showPageWithoutHistory(id) {
 }
 
 function showPage(id) {
-  // Don't push history if we're already on this page
   if (id === activePage) return;
-  
-  // Push history entry for page navigation
   pushPageHistory(id);
-  
   showPageWithoutHistory(id);
 }
 
@@ -2986,7 +3138,6 @@ function setupSheetSwipeToDismiss() {
 //  BOTTOM SHEET — with history integration
 // ================================================================
 
-// Visual-only close (no history manipulation) — used by popstate handler
 function closeSheetVisual() {
   preventRefresh = false;
   document.getElementById('sheetOverlay').classList.remove('open');
@@ -3012,11 +3163,6 @@ function openSheet(date) {
   selectedDates.add(date); 
   sheetDate = date;
   
-  document.getElementById('sheetDate').textContent = date;
-  document.getElementById('sheetDelete').textContent = 'Usuń';
-  document.getElementById('sheetDayOffBtn').textContent = 'Wolny';
-  document.getElementById('sheetSaveBtn').textContent = 'Zapisz';
-
   const data = workData[date];
   const s = TP_INSTANCES['sheet-start'];
   const e = TP_INSTANCES['sheet-end'];
@@ -3030,22 +3176,24 @@ function openSheet(date) {
   }
   validatePickers();
 
+  // Render the new structured date header
+  renderSheetDateDisplay();
+
   document.getElementById('sheetDelete').style.display = data ? 'inline-flex' : 'none';
+  document.getElementById('sheetDelete').textContent = 'Usuń';
+  document.getElementById('sheetDayOffBtn').textContent = 'Wolny';
+  document.getElementById('sheetSaveBtn').textContent = 'Zapisz';
+
   document.getElementById('sheetOverlay').classList.add('open');
   document.getElementById('bottomSheet').classList.add('open');
 
   document.getElementById('appContainer').classList.add('scaled-back');
 
-  // Push history entry for sheet
   pushSheetHistory();
 }
 
 function openMultiSheet() {
   sheetDate = null;
-  document.getElementById('sheetDate').textContent = `Wybrane dni: ${selectedDates.size}`;
-  document.getElementById('sheetDelete').textContent = 'Usuń';
-  document.getElementById('sheetDayOffBtn').textContent = 'Wolne';
-  document.getElementById('sheetSaveBtn').textContent = 'Zapisz';
 
   const s = TP_INSTANCES['sheet-start'];
   const e = TP_INSTANCES['sheet-end'];
@@ -3055,6 +3203,13 @@ function openMultiSheet() {
   tpSetTime(e, prev.end,   { silent: true });
   validatePickers();
 
+  // Render multi-select header
+  renderSheetDateDisplay();
+
+  document.getElementById('sheetDelete').textContent = 'Usuń';
+  document.getElementById('sheetDayOffBtn').textContent = 'Wolne';
+  document.getElementById('sheetSaveBtn').textContent = 'Zapisz';
+
   document.getElementById('sheetDelete').style.display = 'flex';
   document.getElementById('sheetOverlay').classList.add('open');
   document.getElementById('bottomSheet').classList.add('open');
@@ -3062,15 +3217,11 @@ function openMultiSheet() {
 
   document.getElementById('appContainer').classList.add('scaled-back');
 
-  // Push history entry for sheet
   pushSheetHistory();
 }
 
 function closeSheet() {
-  // Pop the sheet history entry (triggers history.back internally)
   popSheetHistory();
-  
-  // Perform the visual close
   closeSheetVisual();
 }
 
