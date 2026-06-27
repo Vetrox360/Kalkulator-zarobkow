@@ -33,7 +33,7 @@
       --page-margin: 16px;
       --overlay: rgba(11,11,11,0.55);
       --shadow: 0 -12px 48px rgba(0,0,0,0.7);
-      --shadow-low 0 5px 48px rgba(0,0,0,0.7);
+      --shadow-low: 0 5px 48px rgba(0,0,0,0.7);
     }
 
     body.light {
@@ -45,7 +45,7 @@
       --border:   rgba(0,0,0,0.07);
       --thumb-bg: #ffffff;
       --thumb-ridge: rgba(0,0,0,0.35);
-      --overlay: rgba(ff,ff,ff,0.55);
+      --overlay: rgba(255,255,255,0.55);
       --shadow: 0 -12px 48px rgba(0,0,0,0.3);
       --shadow-low: 0 0px 14px rgba(0,0,0,0.3);
     }
@@ -223,6 +223,7 @@
     input[type="time"],
     input[type="date"],
     input[type="number"],
+    input[type="text"],
     select {
       width: 100%;
       padding: 12px 14px;
@@ -787,7 +788,6 @@
       margin: 0 auto 18px;
     }
 
-    /* ── NEW: Sheet date display ── */
     .sheet-date-display {
       display: flex;
       align-items: center;
@@ -796,14 +796,13 @@
       margin-bottom: 20px;
     }
 
-    /* Day box — styled like a calendar cell */
     .sheet-date-day-box {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 3px;
-     width: 48px;
+      width: 48px;
       height: 48px;
       background: var(--surface2);
       border: 1.5px solid var(--border);
@@ -837,7 +836,6 @@
       pointer-events: none;
     }
 
-    /* Month box — styled like the month select in the calendar header */
     .sheet-date-month-box {
       display: flex;
       align-items: center;
@@ -853,7 +851,6 @@
       min-width: 100px;
     }
 
-    /* Year box — styled like the year input in the calendar header */
     .sheet-date-year-box {
       display: flex;
       align-items: center;
@@ -870,7 +867,6 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* Multi-select variant — replace day box with a count pill */
     .sheet-date-multi-box {
       display: flex;
       align-items: center;
@@ -886,13 +882,10 @@
       gap: 6px;
     }
 
-    /* ── end new styles ── */
-
     .sheet-date {
       font-size: 17px; font-weight: 700;
       text-align: center; margin-bottom: 18px;
       color: var(--text);
-      /* keep for fallback / multi-select text */
     }
 
     .bottom-nav {
@@ -1320,6 +1313,204 @@
       overflow: hidden;
       pointer-events: none;
     }
+
+    /* ── EXPENSES PAGE STYLES ── */
+    .expenses-summary-card {
+      padding: 26px 20px 20px;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+    .expenses-summary-card::before {
+      content: '';
+      position: absolute;
+      top: -40%; right: -20%;
+      width: 350px; height: 350px;
+      pointer-events: none;
+    }
+
+    .expenses-big-number {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      color: var(--text);
+      line-height: 1.2;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 4px;
+    }
+    .expenses-big-number .exp-symbol {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent);
+      vertical-align: super;
+      letter-spacing: 0;
+      margin-left: 4px;
+    }
+
+    .expenses-pln-line {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 16px;
+    }
+    .expenses-pln-line .exp-pln-symbol {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      vertical-align: super;
+      margin-left: 3px;
+    }
+
+    .expenses-balance-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+    }
+    .expenses-balance-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+    .expenses-balance-value {
+      font-size: 18px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      margin-left: auto;
+    }
+    .expenses-balance-value.positive { color: var(--text); }
+    .expenses-balance-value.negative { color: var(--accent); }
+
+    .expense-list-header {
+      display: flex;
+      padding: 0 4px 8px;
+      gap: 10px;
+    }
+    .expense-list-header span {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--accent);
+    }
+    .expense-list-header span:first-child { flex: 1; }
+    .expense-list-header span:last-child { width: 110px; text-align: right; }
+
+    .expense-item-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--r-sm);
+      margin-bottom: 11px;
+      touch-action: pan-y;
+    }
+
+    .expense-item-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 20px;
+      background: var(--danger);
+      border-radius: var(--r-sm);
+      color: #fff;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .delete-label {
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+      opacity: 0;
+      transform: translateX(10px);
+      transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+      will-change: opacity, transform;
+      position: absolute;
+    }
+    .delete-label-left {
+      left: 20px;
+      transform: translateX(-10px);
+    }
+    .delete-label-right {
+      right: 20px;
+    }
+    .delete-label.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .expense-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0;
+    background: var(--surface);
+    border: none;
+    border-radius: var(--r-sm);
+    box-shadow: none;
+    }
+    .expense-item.swiping {
+      transition: none;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .expense-item.removing {
+      transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), opacity 0.25s ease;
+    }
+
+    .expense-item input[type="text"] {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 15px;
+      font-weight: 600;
+      min-width: 0;
+    }
+    .expense-item input[type="number"] {
+      width: 90px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      padding: 10px 10px;
+    }
+
+    .expense-new-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .expense-new-row input[type="text"] {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 15px;
+      min-width: 0;
+    }
+    .expense-new-row input[type="number"] {
+      width: 90px;
+      padding: 10px 12px;
+      font-weight: 600;
+      font-size: 15px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .expense-item-wrap.collapsing {
+      animation: expenseCollapse 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    @keyframes expenseCollapse {
+      from { max-height: 100px; opacity: 1; margin-bottom: 11px; }
+      to   { max-height: 0; opacity: 0; margin-bottom: 0; padding: 0; }
+    }
   </style>
 </head>
 <body>
@@ -1406,11 +1597,45 @@
     </div>
   </div>
 
+  <!-- ═══════════ EXPENSES PAGE ═══════════ -->
+  <div id="expensesPage" class="page">
+    <div class="title">
+      <h1>Wydatki</h1>
+      <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Dodawaj wydatki i dodatkowe przychody (ujemne wartości). Przesuń wpis w bok, aby go usunąć.</p>
+    </div>
+
+    <div class="card expenses-summary-card stagger-card" data-stagger="0">
+      <div class="earnings-eyebrow">Suma wydatków</div>
+      <div class="expenses-big-number" id="expTotalEUR">0.00<span class="exp-symbol">€</span></div>
+      <div class="expenses-pln-line" id="expTotalPLN">0.00<span class="exp-pln-symbol">PLN</span></div>
+      <div class="expenses-balance-row">
+        <span class="expenses-balance-label">Bilans roczny</span>
+        <span class="expenses-balance-value positive" id="expBalance">0.00 €</span>
+      </div>
+      <div class="expenses-balance-row" style="margin-top: 8px;">
+        <span class="expenses-balance-label">Bilans roczny PLN</span>
+        <span class="expenses-balance-value positive" id="expBalancePLN">0.00 PLN</span>
+      </div>
+    </div>
+
+    <div class="card stagger-card" data-stagger="1">
+      <div class="expense-list-header">
+        <span>Nazwa</span>
+        <span>EUR</span>
+      </div>
+      <div id="expensesList"></div>
+      <div class="expense-new-row" id="expenseNewRow">
+        <input type="text" id="newExpenseName" placeholder="Nazwa wydatku...">
+        <input type="number" id="newExpenseAmount" placeholder="0.00" step="0.01">
+      </div>
+    </div>
+  </div>
+
   <div id="statsPage" class="page">
     <div class="title">
     <h1>Statystyki</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Szczegółowe podsumowanie Twojej pracy i zarobków na przestrzeni czasu.</p>
-        </div>
+    </div>
 
     <div class="stagger-card" data-stagger="0">
       <div class="stats-grid" id="statsGrid"></div>
@@ -1423,10 +1648,10 @@
   </div>
 
   <div id="settingsPage" class="page">
-        <div class="title">
+    <div class="title">
     <h1>Ustawienia</h1>
     <p style="font-size: 11px; color: var(--muted); margin-top: -10px; margin-bottom: 12px;">Modyfikuj stawki godzinowe i kurs przewalutowania, dostosuj motyw lub eksportuj i importuj dane.</p>
-        </div>
+    </div>
 
     <div class="card settings-block stagger-card" data-stagger="0">
       <div class="field">
@@ -1512,7 +1737,7 @@
         <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z"/>
         <polyline points="9 21 9 12 15 12 15 21"/>
       </svg>
-      <span>Główna</span>
+      <span>Zarobki</span>
     </button>
     <button class="nav-btn" id="calendarPageBtn" onclick="showPage('calendarPage')">
       <svg viewBox="0 0 24 24">
@@ -1522,6 +1747,13 @@
         <line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
       <span>Kalendarz</span>
+    </button>
+    <button class="nav-btn" id="expensesPageBtn" onclick="showPage('expensesPage')">
+      <svg viewBox="0 0 24 24">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+      <span>Wydatki</span>
     </button>
     <button class="nav-btn" id="statsPageBtn" onclick="showPage('statsPage')">
       <svg viewBox="0 0 24 24">
@@ -1543,10 +1775,7 @@
 <div class="sheet" id="bottomSheet">
   <div class="sheet-handle"></div>
 
-  <!-- NEW structured date display — replaces the old .sheet-date div -->
-  <div class="sheet-date-display" id="sheetDateDisplay">
-    <!-- populated by renderSheetDateDisplay() -->
-  </div>
+  <div class="sheet-date-display" id="sheetDateDisplay"></div>
 
   <div class="tp-error" id="sheetError">Godzina zakończenia musi być późniejsza niż rozpoczęcia!</div>
 
@@ -1629,6 +1858,7 @@ document.addEventListener('touchstart', (e) => {
 });
 
 let workData   = {};
+let expensesData = []; // Array of { name: string, amount: number }
 let HOURLY_RATE = 11.17;
 let PLN_RATE    = 4.30;
 const GDRIVE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
@@ -1648,20 +1878,342 @@ let sheetDragStartY = 0;
 let sheetDragCurrentY = 0;
 let isDraggingSheet = false;
 
-// Polish month names (nominative — for display)
 const MONTH_NAMES_PL = [
   'Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
   'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'
 ];
 
 // ================================================================
+//  EXPENSES LOGIC
+// ================================================================
+function loadExpenses() {
+  const stored = localStorage.getItem('expensesData');
+  if (stored) {
+    try { expensesData = JSON.parse(stored); } catch(e) { expensesData = []; }
+  }
+}
+
+function saveExpenses() {
+  localStorage.setItem('expensesData', JSON.stringify(expensesData));
+}
+
+function getExpensesTotal() {
+  // Positive amounts = expenses, negative amounts = extra income
+  let expenses = 0;
+  let extraIncome = 0;
+  for (const item of expensesData) {
+    if (item.amount >= 0) {
+      expenses += item.amount;
+    } else {
+      extraIncome += Math.abs(item.amount);
+    }
+  }
+  return { expenses, extraIncome, net: expenses - extraIncome };
+}
+
+function getYearlyEarnings() {
+  const selectedYear = getMainYear();
+  let totalEUR = 0;
+  for (const [date, data] of Object.entries(workData)) {
+    if (data.isDayOff) continue;
+    if (new Date(date).getFullYear() !== selectedYear) continue;
+    const s = new Date(`${date}T${data.startTime}`);
+    const e = new Date(`${date}T${data.endTime}`);
+    if (e < s) e.setDate(e.getDate() + 1);
+    totalEUR += ((e - s) / 3600000) * HOURLY_RATE;
+  }
+  return totalEUR;
+}
+
+function renderExpensesSummary() {
+  const { expenses, extraIncome, net } = getExpensesTotal();
+  const yearlyEarnings = getYearlyEarnings();
+  const balance = yearlyEarnings - net;
+
+  document.getElementById('expTotalEUR').innerHTML = `${net.toFixed(2)}<span class="exp-symbol">€</span>`;
+  document.getElementById('expTotalPLN').innerHTML = `${(net * PLN_RATE).toFixed(2)}<span class="exp-pln-symbol">PLN</span>`;
+  
+  const balEl = document.getElementById('expBalance');
+  balEl.textContent = `${balance.toFixed(2)} €`;
+  balEl.className = 'expenses-balance-value ' + (balance >= 0 ? 'positive' : 'negative');
+
+  const balancePLN = balance * PLN_RATE;
+  const balPlnEl = document.getElementById('expBalancePLN');
+  if (balPlnEl) {
+    balPlnEl.textContent = `${balancePLN.toFixed(2)} PLN`;
+    balPlnEl.className = 'expenses-balance-value ' + (balancePLN >= 0 ? 'positive' : 'negative');
+  }
+}
+
+function renderExpensesList() {
+  const listEl = document.getElementById('expensesList');
+  listEl.innerHTML = '';
+
+  expensesData.forEach((item, index) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'expense-item-wrap';
+    wrap.dataset.index = index;
+
+    const bg = document.createElement('div');
+    bg.className = 'expense-item-bg';
+    bg.innerHTML = '<span class="delete-label delete-label-left">Usuń</span><span class="delete-label delete-label-right">Usuń</span>';
+
+    const row = document.createElement('div');
+    row.className = 'expense-item';
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.value = item.name;
+    nameInput.addEventListener('change', () => {
+      expensesData[index].name = nameInput.value;
+      saveExpenses();
+    });
+
+    const amountInput = document.createElement('input');
+    amountInput.type = 'number';
+    amountInput.step = '0.01';
+    amountInput.value = item.amount;
+    amountInput.addEventListener('change', () => {
+      expensesData[index].amount = parseFloat(amountInput.value) || 0;
+      saveExpenses();
+      renderExpensesSummary();
+    });
+
+    row.appendChild(nameInput);
+    row.appendChild(amountInput);
+    wrap.appendChild(bg);
+    wrap.appendChild(row);
+    listEl.appendChild(wrap);
+
+    // Swipe to delete
+    setupExpenseSwipe(wrap, row, index);
+  });
+}
+
+function setupExpenseSwipe(wrap, row, index) {
+  let startX = 0;
+  let startY = 0;
+  let currentX = 0;
+  let isSwiping = false;
+  let gestureChecked = false;
+  let isVertical = false;
+  let rafId = null;
+  let pendingDelta = 0;
+  let vibrated = false;
+
+  const bgEl = wrap.querySelector('.expense-item-bg');
+  const deleteLabelLeft  = bgEl ? bgEl.querySelector('.delete-label-left')  : null;
+  const deleteLabelRight = bgEl ? bgEl.querySelector('.delete-label-right') : null;
+
+  function getThreshold() { return wrap.offsetWidth * 0.35; }
+
+  function resetLabels() {
+    if (deleteLabelLeft)  deleteLabelLeft.classList.remove('visible');
+    if (deleteLabelRight) deleteLabelRight.classList.remove('visible');
+  }
+
+  function applyFrame(delta) {
+    // 60 FPS transform — scale up slightly while dragging for tactile lift
+    row.style.transform = `translateX(${delta}px) scale(1.01)`;
+
+    const t = getThreshold();
+    const progress = Math.min(Math.abs(delta) / t, 1);
+
+    // Progressive reveal of the correct "Usuń" label
+    if (progress > 0.18) {
+      if (delta > 0) {
+        if (deleteLabelLeft)  deleteLabelLeft.classList.add('visible');
+        if (deleteLabelRight) deleteLabelRight.classList.remove('visible');
+      } else {
+        if (deleteLabelRight) deleteLabelRight.classList.add('visible');
+        if (deleteLabelLeft)  deleteLabelLeft.classList.remove('visible');
+      }
+    } else {
+      resetLabels();
+    }
+
+    // Single haptic pulse when crossing the delete threshold
+    if (Math.abs(delta) >= t && !vibrated) {
+      vibrated = true;
+      if (navigator.vibrate) navigator.vibrate(8);
+    }
+    if (Math.abs(delta) < t * 0.85) {
+      vibrated = false;
+    }
+  }
+
+  function scheduleFrame() {
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      rafId = null;
+      applyFrame(pendingDelta);
+    });
+  }
+
+  // ── Gesture starts on the WRAP so inputs are captured too ──────
+  wrap.addEventListener('touchstart', (e) => {
+    startX   = e.touches[0].clientX;
+    startY   = e.touches[0].clientY;
+    currentX = startX;
+    isSwiping      = false;
+    gestureChecked = false;
+    isVertical     = false;
+    vibrated       = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    // Do NOT preventDefault here — allow tap-to-focus to work normally
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', (e) => {
+    if (isVertical) return; // vertical scroll — hands off
+
+    const touch = e.touches[0];
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+
+    if (!gestureChecked) {
+      const adx = Math.abs(dx);
+      const ady = Math.abs(dy);
+      // Wait for enough movement to determine intent
+      if (adx > 8 || ady > 8) {
+        gestureChecked = true;
+        if (ady > adx) {
+          // Vertical intent → let the page scroll
+          isVertical = true;
+          return;
+        }
+        // Horizontal intent confirmed
+        isSwiping = true;
+        row.classList.add('swiping');
+        // Close keyboard if an input inside this row has focus
+        if (document.activeElement &&
+            document.activeElement.tagName === 'INPUT' &&
+            row.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+      }
+      return; // still deciding — don't move anything yet
+    }
+
+    if (!isSwiping) return;
+
+    // Block scroll, text selection, and accidental input cursor movement
+    if (e.cancelable) e.preventDefault();
+
+    currentX = touch.clientX;
+    pendingDelta = currentX - startX;
+    scheduleFrame();
+  }, { passive: false });
+
+  wrap.addEventListener('touchend', () => {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    if (!isSwiping) return;
+
+    row.classList.remove('swiping');
+    resetLabels();
+
+    const delta = currentX - startX;
+    const t = getThreshold();
+
+    if (Math.abs(delta) > t) {
+      // ── Delete path ───────────────────────────────────────────
+      const dir = delta > 0 ? 1 : -1;
+
+      // 1. Fly the row off screen
+      row.style.transition = 'transform 0.24s cubic-bezier(0.22,1,0.36,1), opacity 0.22s ease';
+      row.style.transform  = `translateX(${dir * (wrap.offsetWidth + 48)}px) scale(1)`;
+      row.style.opacity    = '0';
+
+      // 2. After row exits, collapse the wrapper with height animation
+      setTimeout(() => {
+        const h = wrap.getBoundingClientRect().height;
+        wrap.style.overflow     = 'hidden';
+        wrap.style.maxHeight    = h + 'px';
+        wrap.style.marginBottom = '11px';
+        void wrap.offsetHeight; // force reflow so transition fires
+
+        wrap.style.transition   = 'max-height 0.28s cubic-bezier(0.22,1,0.36,1), margin-bottom 0.26s cubic-bezier(0.22,1,0.36,1), opacity 0.22s ease';
+        wrap.style.maxHeight    = '0';
+        wrap.style.marginBottom = '0';
+        wrap.style.opacity      = '0';
+
+        wrap.addEventListener('transitionend', () => {
+          expensesData.splice(index, 1);
+          saveExpenses();
+          renderExpensesList();
+          renderExpensesSummary();
+        }, { once: true });
+      }, 190);
+
+    } else {
+      // ── Spring-back path ──────────────────────────────────────
+      row.style.transition = 'transform 0.42s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease';
+      row.style.transform  = 'translateX(0) scale(1)';
+      setTimeout(() => {
+        row.style.transition = '';
+        row.style.transform  = '';
+      }, 440);
+    }
+
+    isSwiping = false;
+  });
+
+  wrap.addEventListener('touchcancel', () => {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    row.classList.remove('swiping');
+    resetLabels();
+    row.style.transition = 'transform 0.42s cubic-bezier(0.34,1.56,0.64,1)';
+    row.style.transform  = 'translateX(0) scale(1)';
+    setTimeout(() => { row.style.transition = ''; row.style.transform = ''; }, 440);
+    isSwiping = false;
+  });
+}
+
+function setupNewExpenseRow() {
+  const nameInput = document.getElementById('newExpenseName');
+  const amountInput = document.getElementById('newExpenseAmount');
+
+  function tryAddExpense() {
+    const name = nameInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+    if (name && !isNaN(amount)) {
+      expensesData.push({ name, amount });
+      saveExpenses();
+      nameInput.value = '';
+      amountInput.value = '';
+      renderExpensesList();
+      renderExpensesSummary();
+      // Focus name for next entry
+      setTimeout(() => nameInput.focus(), 50);
+    }
+  }
+
+  amountInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      tryAddExpense();
+    }
+  });
+
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      amountInput.focus();
+    }
+  });
+
+  // Also add on blur of amount if both filled
+  amountInput.addEventListener('blur', () => {
+    const name = nameInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+    if (name && !isNaN(amount)) {
+      tryAddExpense();
+    }
+  });
+}
+
+// ================================================================
 //  SHEET DATE DISPLAY
 // ================================================================
-
-/**
- * Compute the live hours badge text from the two pickers.
- * Returns a string like "7.5h" / "8h" / "" when times are invalid/equal.
- */
 function sheetLiveHoursText() {
   const s = TP_INSTANCES['sheet-start'];
   const e = TP_INSTANCES['sheet-end'];
@@ -1678,15 +2230,10 @@ function sheetLiveHoursText() {
   return h % 1 === 0 ? `${Math.floor(h)}h` : `${h.toFixed(1)}h`;
 }
 
-/**
- * Render or update the structured date display inside the sheet.
- * Called once when the sheet opens and again whenever sliders move.
- */
 function renderSheetDateDisplay() {
   const container = document.getElementById('sheetDateDisplay');
   if (!container) return;
 
-  // ── Multi-select mode ──────────────────────────────────────────
   if (!sheetDate && selectedDates.size > 1) {
     container.innerHTML = `
       <div class="sheet-date-multi-box">
@@ -1699,13 +2246,11 @@ function renderSheetDateDisplay() {
     return;
   }
 
-  // ── Single-date mode ───────────────────────────────────────────
   if (!sheetDate) return;
 
-  // Parse the ISO date string (YYYY-MM-DD) without timezone pitfalls
   const parts = sheetDate.split('-');
   const dayNum   = parseInt(parts[2], 10);
-  const monthIdx = parseInt(parts[1], 10) - 1; // 0-based
+  const monthIdx = parseInt(parts[1], 10) - 1;
   const year     = parseInt(parts[0], 10);
 
   const monthName = MONTH_NAMES_PL[monthIdx];
@@ -1722,14 +2267,9 @@ function renderSheetDateDisplay() {
     <div class="sheet-date-year-box">${year}</div>`;
 }
 
-/**
- * Update only the live hours badge — called on every picker change
- * so we avoid re-rendering the whole header unnecessarily.
- */
 function updateSheetLiveBadge() {
   const badge = document.getElementById('sheetLiveBadge');
   if (!badge) {
-    // Badge doesn't exist yet (multi-select or not rendered) — do a full render
     renderSheetDateDisplay();
     return;
   }
@@ -1783,6 +2323,20 @@ function popSheetHistory() {
 window.addEventListener('popstate', (e) => {
   if (isHandlingPopstate) return;
   isHandlingPopstate = true;
+
+  // If on mainPage (Zarobki) with no sheet open, close the app
+  if (!sheetIsOpen && activePage === 'mainPage') {
+    isHandlingPopstate = false;
+    // Let the browser handle it — this will close/go back
+    // We need to not prevent it, so we do nothing here
+    // But since we replaced state, we need to actually close
+    window.close();
+    // Fallback: navigate away
+    if (!window.closed) {
+      history.back();
+    }
+    return;
+  }
 
   if (sheetIsOpen) {
     sheetIsOpen = false;
@@ -2053,7 +2607,6 @@ function tpCommit(inst) {
   if (inst.onChange) inst.onChange(tpGetTime(inst));
   tpUpdateSlider(inst);
   validatePickers();
-  // Update the live badge in the sheet header
   updateSheetLiveBadge();
 }
 
@@ -2170,7 +2723,6 @@ function tpAttachSlider(inst) {
     tpRender(inst);
     if (inst.onChange) inst.onChange(tpGetTime(inst));
     validatePickers();
-    // Update the live badge as the slider moves
     updateSheetLiveBadge();
   }
 
@@ -2728,18 +3280,22 @@ function renderRecentEntries() {
 window.addEventListener('load', () => {
   loadRates();
   loadTheme();
+  loadExpenses();
   workData = JSON.parse(localStorage.getItem('workData') || '{}');
   const now = new Date();
   document.getElementById('mainYearInput').value = now.getFullYear();
   initCalendar();
   setupCalendarSelection(); 
   setupSheetSwipeToDismiss();
+  setupNewExpenseRow();
 
   tpCreate('sheet-start', () => {});
   tpCreate('sheet-end',   () => {});
 
   recalc();
   renderRecentEntries();
+  renderExpensesList();
+  renderExpensesSummary();
   
   initHistory();
   
@@ -2773,6 +3329,7 @@ function saveRates() {
   if (!isNaN(r) && r > 0) { HOURLY_RATE = r; localStorage.setItem('hourlyRate', r); }
   if (!isNaN(p) && p > 0) { PLN_RATE    = p; localStorage.setItem('plnRate',    p); }
   recalc();
+  renderExpensesSummary();
   toast('Stawki zapisane!');
 }
 
@@ -2780,6 +3337,8 @@ function saveRates() {
 //  PAGES
 // ================================================================
 let activePage = 'mainPage';
+
+const PAGE_ORDER = ['mainPage', 'calendarPage', 'expensesPage', 'statsPage', 'settingsPage'];
 
 function showPageWithoutHistory(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2799,6 +3358,11 @@ function showPageWithoutHistory(id) {
   }
 
   if (id === 'calendarPage') renderRecentEntries();
+
+  if (id === 'expensesPage') {
+    renderExpensesList();
+    renderExpensesSummary();
+  }
 
   requestAnimationFrame(() => {
     triggerStaggeredEntrance(id);
@@ -3176,7 +3740,6 @@ function openSheet(date) {
   }
   validatePickers();
 
-  // Render the new structured date header
   renderSheetDateDisplay();
 
   document.getElementById('sheetDelete').style.display = data ? 'inline-flex' : 'none';
@@ -3203,7 +3766,6 @@ function openMultiSheet() {
   tpSetTime(e, prev.end,   { silent: true });
   validatePickers();
 
-  // Render multi-select header
   renderSheetDateDisplay();
 
   document.getElementById('sheetDelete').textContent = 'Usuń';
@@ -3331,7 +3893,7 @@ async function backupToGDrive() {
   setSyncStatus('syncing');
   try {
     const token   = gapi?.client?.getToken()?.access_token;
-    const payload = JSON.stringify({ workData, savedAt: new Date().toISOString() });
+    const payload = JSON.stringify({ workData, expensesData, hourlyRate: HOURLY_RATE, plnRate: PLN_RATE, savedAt: new Date().toISOString() });
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
     if (!gdriveFileId) gdriveFileId = await gdriveFindFile(token);
     if (gdriveFileId) {
@@ -3360,7 +3922,14 @@ async function restoreFromGDrive() {
     if (remote.savedAt > local) {
       if (confirm(`Nowsze dane na Drive z ${new Date(remote.savedAt).toLocaleString('pl')}. Zastąpić lokalne?`)) {
         workData = remote.workData;
-        persist(); recalc(); renderCalendar(); renderRecentEntries(); toast('Przywrócono z Drive!');
+        if (remote.expensesData) { expensesData = remote.expensesData; saveExpenses(); }
+        if (remote.hourlyRate) { HOURLY_RATE = remote.hourlyRate; localStorage.setItem('hourlyRate', HOURLY_RATE); }
+        if (remote.plnRate) { PLN_RATE = remote.plnRate; localStorage.setItem('plnRate', PLN_RATE); }
+        document.getElementById('hourlyRateInput').value = HOURLY_RATE;
+        document.getElementById('plnRateInput').value = PLN_RATE;
+        persist(); recalc(); renderCalendar(); renderRecentEntries();
+        renderExpensesList(); renderExpensesSummary();
+        toast('Przywrócono z Drive!');
       }
     } else { toast('Dane lokalne są aktualne'); }
   } catch { toast('Błąd pobierania z Drive'); }
@@ -3424,7 +3993,14 @@ function dlBlob(content, name, type) {
 }
 
 function backupData() {
-  const payload = JSON.stringify({ workData, savedAt: new Date().toISOString(), version: 2 }, null, 2);
+  const payload = JSON.stringify({
+    workData,
+    expensesData,
+    hourlyRate: HOURLY_RATE,
+    plnRate: PLN_RATE,
+    savedAt: new Date().toISOString(),
+    version: 3
+  }, null, 2);
   dlBlob(payload, 'kalkulator_backup.json', 'application/json');
 }
 
@@ -3438,7 +4014,22 @@ function handleFileUpload(e) {
     try {
       const parsed = JSON.parse(ev.target.result);
       workData = parsed.workData || parsed;
+      if (parsed.expensesData) {
+        expensesData = parsed.expensesData;
+        saveExpenses();
+      }
+      if (parsed.hourlyRate) {
+        HOURLY_RATE = parsed.hourlyRate;
+        localStorage.setItem('hourlyRate', HOURLY_RATE);
+      }
+      if (parsed.plnRate) {
+        PLN_RATE = parsed.plnRate;
+        localStorage.setItem('plnRate', PLN_RATE);
+      }
+      document.getElementById('hourlyRateInput').value = HOURLY_RATE;
+      document.getElementById('plnRateInput').value = PLN_RATE;
       persist(); recalc(); renderCalendar(); renderRecentEntries();
+      renderExpensesList(); renderExpensesSummary();
       toast('Dane przywrócone!');
     } catch { toast('Błąd pliku JSON'); }
   };
@@ -3464,8 +4055,6 @@ let swipeCurrentX = 0;
 let swipeIsSwiping = false;
 let swipeIsVertical = false;
 let swipeNavigated = false;
-
-const PAGE_ORDER = ['mainPage', 'calendarPage', 'statsPage', 'settingsPage'];
 
 function setupSwipeNavigation() {
   const pages = document.querySelectorAll('.page');
@@ -3601,7 +4190,8 @@ function isInteractiveElement(el) {
     
     if (current.classList?.contains('sheet') ||
         current.id === 'calendar' ||
-        current.id === 'bottomSheet') {
+        current.id === 'bottomSheet' ||
+        current.classList?.contains('expense-item')) {
       return true;
     }
     
