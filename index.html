@@ -1511,6 +1511,82 @@
       from { max-height: 100px; opacity: 1; margin-bottom: 11px; }
       to   { max-height: 0; opacity: 0; margin-bottom: 0; padding: 0; }
     }
+        /* ── UNDO TOAST STYLES ── */
+     /* ── UNDO TOAST STYLES (Dopasowane do oryginalnego Toastu - Jedna linia) ── */
+    #undoToast {
+      position: fixed;
+      bottom: calc(82px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translate(-50%, 20px);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: var(--r);
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      z-index: 200;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      
+      /* Wymuszenie wyświetlania wszystkiego w jednej linii */
+      white-space: nowrap; 
+    }
+    
+    /* Stan wyświetlania – wyśrodkowany X i przesunięty w docelowe miejsce Y */
+    #undoToast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+      pointer-events: all;
+    }
+    
+    /* Przycisk akcji "Cofnij" */
+    #undoToastBtn {
+      color: var(--accent); /* Zmienia się tylko kolor tego słowa */
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      transition: opacity 0.1s ease;
+      
+      /* Blokada łamania wewnątrz przycisku */
+      white-space: nowrap; 
+    }
+    
+    #undoToastBtn:active {
+      opacity: 0.6;
+    }
+
+    /* Animacja płynnego wsuwania przywróconego wydatku */
+    .expense-item-wrap.restoring {
+      animation: expenseExpand 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes expenseExpand {
+      from { max-height: 0; opacity: 0; margin-bottom: 0; transform: scale(0.9); }
+      to   { max-height: 100px; opacity: 1; margin-bottom: 11px; transform: scale(1); }
+    }
+
+
+    /* Animacja płynnego wsuwania przywróconego wydatku */
+    .expense-item-wrap.restoring {
+      animation: expenseExpand 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes expenseExpand {
+      from { max-height: 0; opacity: 0; margin-bottom: 0; transform: scale(0.9); }
+      to   { max-height: 100px; opacity: 1; margin-bottom: 11px; transform: scale(1); }
+    }
+
   </style>
 </head>
 <body>
@@ -1835,6 +1911,11 @@
 </div>
 
 <div id="toast"></div>
+<div id="undoToast">
+  <span id="undoToastText">Wydatek usunięty</span>
+  <button id="undoToastBtn" onclick="triggerUndoExpense()">Cofnij</button>
+</div>
+
 
 <script>
 // ================================================================
@@ -1859,6 +1940,86 @@ document.addEventListener('touchstart', (e) => {
 
 let workData   = {};
 let expensesData = []; // Array of { name: string, amount: number }
+// ... (tutaj znajdują się Twoje dotychczasowe zmienne, np. let expensesData = ... )
+
+// =========================================================================
+// TUTAJ WKLEJ TEN BLOK: Globalny stan operacji undo dla wydatków
+// =========================================================================
+let pendingUndoExpense = null;
+let undoToastTimeout = null;
+
+function deleteExpenseWithUndo(index) {
+  // Jeśli istnieje już oczekujący wydatek do usunięcia, zatwierdź go permanentnie
+  if (pendingUndoExpense) {
+    clearTimeout(undoToastTimeout);
+    commitPendingDelete();
+  }
+
+  // Zapisz kopię obiektu oraz jego pierwotny indeks przed modyfikacją tablicy
+  pendingUndoExpense = {
+    item: { ...expensesData[index] },
+    originalIndex: index
+  };
+
+  // Usuń element z tablicy danych
+  expensesData.splice(index, 1);
+  saveExpenses();
+  renderExpensesList();
+  renderExpensesSummary();
+
+  // Wyświetl interaktywny Toast
+  const toast = document.getElementById('undoToast');
+  toast.classList.add('show');
+
+  // Automatyczne wygaśnięcie po 5 sekundach
+  undoToastTimeout = setTimeout(() => {
+    dismissUndoToast();
+  }, 5000);
+}
+
+function triggerUndoExpense() {
+  if (!pendingUndoExpense) return;
+
+  // Wyczyszczenie timeoutu, aby zapobiec wygaśnięciu stanu w trakcie przywracania
+  clearTimeout(undoToastTimeout);
+
+  const { item, originalIndex } = pendingUndoExpense;
+
+  // Wstaw element dokładnie na jego pierwotną pozycję
+  expensesData.splice(originalIndex, 0, item);
+  saveExpenses();
+  
+  // Oznaczenie indeksu do wykonania animacji wejścia
+  pendingUndoExpense.restoredIndex = originalIndex;
+
+  renderExpensesList();
+  renderExpensesSummary();
+
+  // Dodanie klasy animacji do nowo wyrenderowanego wiersza
+  const rows = document.querySelectorAll('#expensesList .expense-item-wrap');
+  if (rows[originalIndex]) {
+    rows[originalIndex].classList.add('restoring');
+  }
+
+  // Natychmiastowe ukrycie powiadomienia i czyszczenie stanu
+  pendingUndoExpense = null;
+  const toast = document.getElementById('undoToast');
+  toast.classList.remove('show');
+}
+
+function commitPendingDelete() {
+  pendingUndoExpense = null;
+}
+
+function dismissUndoToast() {
+  const toast = document.getElementById('undoToast');
+  toast.classList.remove('show');
+  commitPendingDelete();
+}
+// =========================================================================
+
+// ... (poniżej będą znajdować się funkcje takie jak function saveExpenses() czy renderExpensesList())
+
 let HOURLY_RATE = 11.17;
 let PLN_RATE    = 4.30;
 const GDRIVE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
@@ -2114,22 +2275,20 @@ function setupExpenseSwipe(wrap, row, index) {
     const delta = currentX - startX;
     const t = getThreshold();
 
-    if (Math.abs(delta) > t) {
-      // ── Delete path ───────────────────────────────────────────
+        if (Math.abs(delta) > t) {
+      // ── Ścieżka usunięcia elementu ───────────────────────────
       const dir = delta > 0 ? 1 : -1;
 
-      // 1. Fly the row off screen
       row.style.transition = 'transform 0.24s cubic-bezier(0.22,1,0.36,1), opacity 0.22s ease';
       row.style.transform  = `translateX(${dir * (wrap.offsetWidth + 48)}px) scale(1)`;
       row.style.opacity    = '0';
 
-      // 2. After row exits, collapse the wrapper with height animation
       setTimeout(() => {
         const h = wrap.getBoundingClientRect().height;
         wrap.style.overflow     = 'hidden';
         wrap.style.maxHeight    = h + 'px';
         wrap.style.marginBottom = '11px';
-        void wrap.offsetHeight; // force reflow so transition fires
+        void wrap.offsetHeight; 
 
         wrap.style.transition   = 'max-height 0.28s cubic-bezier(0.22,1,0.36,1), margin-bottom 0.26s cubic-bezier(0.22,1,0.36,1), opacity 0.22s ease';
         wrap.style.maxHeight    = '0';
@@ -2137,14 +2296,13 @@ function setupExpenseSwipe(wrap, row, index) {
         wrap.style.opacity      = '0';
 
         wrap.addEventListener('transitionend', () => {
-          expensesData.splice(index, 1);
-          saveExpenses();
-          renderExpensesList();
-          renderExpensesSummary();
+          // Wywołanie scentralizowanej metody usuwania z obsługą Undo Toast
+          deleteExpenseWithUndo(index);
         }, { once: true });
       }, 190);
 
     } else {
+
       // ── Spring-back path ──────────────────────────────────────
       row.style.transition = 'transform 0.42s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease';
       row.style.transform  = 'translateX(0) scale(1)';
@@ -2182,8 +2340,18 @@ function setupNewExpenseRow() {
       amountInput.value = '';
       renderExpensesList();
       renderExpensesSummary();
-      // Focus name for next entry
-      setTimeout(() => nameInput.focus(), 50);
+// Focus name for next entry and ensure it is visible above the keyboard
+setTimeout(() => {
+    nameInput.focus({ preventScroll: true });
+
+    setTimeout(() => {
+        nameInput.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "nearest"
+        });
+    }, 200);
+}, 50);
     }
   }
 
